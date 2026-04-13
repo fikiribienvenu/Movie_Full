@@ -1,0 +1,96 @@
+"use client";
+import { useState } from "react";
+import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { motion } from "framer-motion";
+import { Eye, EyeOff, Mail, Lock, User, Film, AlertCircle } from "lucide-react";
+import { useAuth } from "@/hooks/useAuth";
+
+export default function SignupPage() {
+  const [name, setName] = useState("");
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
+  const [showPass, setShowPass] = useState(false);
+  const [showPass2, setShowPass2] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [errors, setErrors] = useState<Record<string, string>>({ });
+  const [apiError, setApiError] = useState<string | null>(null);
+  const { signup } = useAuth();
+  const router = useRouter();
+
+  const onSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    const errs: Record<string, string> = {};
+    if (name.trim().length < 2) errs.name = "Name must be at least 2 characters";
+    if (!/^\S+@\S+\.\S+$/.test(email)) errs.email = "Enter a valid email";
+    if (password.length < 8) errs.password = "Password must be at least 8 characters";
+    if (password !== confirmPassword) errs.confirmPassword = "Passwords do not match";
+    setErrors(errs);
+    if (Object.keys(errs).length > 0) return;
+
+    setLoading(true);
+    setApiError(null);
+    try {
+      await signup(name, email, password);
+      router.push("/pricing");
+    } catch (err: any) {
+      setApiError(err.message || "Could not create account.");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  return (
+    <div className="min-h-screen bg-bg-primary flex items-center justify-center px-4 py-12">
+      <motion.div initial={{ opacity: 0, y: 24 }} animate={{ opacity: 1, y: 0 }} className="w-full max-w-[440px]">
+        <div className="text-center mb-8">
+          <Link href="/"><span className="font-display text-4xl tracking-widest text-brand-red">CINE<span className="text-brand-gold">MAX</span></span></Link>
+          <p className="text-text-muted text-sm mt-2">Start watching in minutes</p>
+        </div>
+        <div className="bg-bg-secondary border border-border rounded-2xl p-8 shadow-2xl">
+          <h1 className="font-display text-3xl tracking-wider uppercase text-center mb-6">Create Account</h1>
+          <form onSubmit={onSubmit} className="space-y-4">
+            {apiError && <div className="flex items-center gap-2 p-3 bg-red-500/10 border border-red-500/20 rounded-xl"><AlertCircle className="w-4 h-4 text-red-400" /><p className="text-xs text-red-400">{apiError}</p></div>}
+            <div>
+              <label className="block text-xs font-semibold text-text-secondary mb-1.5 uppercase tracking-wider">Full Name</label>
+              <div className="relative"><User className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-text-muted" />
+                <input type="text" value={name} onChange={e => setName(e.target.value)} placeholder="John Doe" className="w-full bg-bg-tertiary border border-border rounded-xl pl-10 pr-4 py-3 text-sm text-text-primary placeholder-text-muted outline-none focus:border-brand-red/60 transition-colors" />
+              </div>
+              {errors.name && <p className="text-brand-red text-xs mt-1.5">{errors.name}</p>}
+            </div>
+            <div>
+              <label className="block text-xs font-semibold text-text-secondary mb-1.5 uppercase tracking-wider">Email Address</label>
+              <div className="relative"><Mail className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-text-muted" />
+                <input type="email" value={email} onChange={e => setEmail(e.target.value)} placeholder="you@example.com" className="w-full bg-bg-tertiary border border-border rounded-xl pl-10 pr-4 py-3 text-sm text-text-primary placeholder-text-muted outline-none focus:border-brand-red/60 transition-colors" />
+              </div>
+              {errors.email && <p className="text-brand-red text-xs mt-1.5">{errors.email}</p>}
+            </div>
+            <div>
+              <label className="block text-xs font-semibold text-text-secondary mb-1.5 uppercase tracking-wider">Password</label>
+              <div className="relative"><Lock className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-text-muted" />
+                <input type={showPass ? "text" : "password"} value={password} onChange={e => setPassword(e.target.value)} placeholder="Min. 8 characters" className="w-full bg-bg-tertiary border border-border rounded-xl pl-10 pr-10 py-3 text-sm text-text-primary placeholder-text-muted outline-none focus:border-brand-red/60 transition-colors" />
+                <button type="button" onClick={() => setShowPass(!showPass)} className="absolute right-3.5 top-1/2 -translate-y-1/2 text-text-muted">{showPass ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}</button>
+              </div>
+              {errors.password && <p className="text-brand-red text-xs mt-1.5">{errors.password}</p>}
+            </div>
+            <div>
+              <label className="block text-xs font-semibold text-text-secondary mb-1.5 uppercase tracking-wider">Confirm Password</label>
+              <div className="relative"><Lock className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-text-muted" />
+                <input type={showPass2 ? "text" : "password"} value={confirmPassword} onChange={e => setConfirmPassword(e.target.value)} placeholder="Repeat your password" className="w-full bg-bg-tertiary border border-border rounded-xl pl-10 pr-10 py-3 text-sm text-text-primary placeholder-text-muted outline-none focus:border-brand-red/60 transition-colors" />
+                <button type="button" onClick={() => setShowPass2(!showPass2)} className="absolute right-3.5 top-1/2 -translate-y-1/2 text-text-muted">{showPass2 ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}</button>
+              </div>
+              {errors.confirmPassword && <p className="text-brand-red text-xs mt-1.5">{errors.confirmPassword}</p>}
+            </div>
+            <button type="submit" disabled={loading} className="w-full py-3.5 bg-brand-red text-white rounded-xl font-bold text-sm hover:bg-brand-red-dark active:scale-95 transition-all disabled:opacity-60 mt-2">
+              {loading ? <span className="flex items-center justify-center gap-2"><span className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />Creating account...</span> : "Create Account →"}
+            </button>
+          </form>
+          <div className="flex items-center gap-3 my-5"><div className="flex-1 h-px bg-border" /><span className="text-xs text-text-muted">or</span><div className="flex-1 h-px bg-border" /></div>
+          <button className="w-full py-3 bg-bg-tertiary border border-border rounded-xl text-sm font-medium text-text-secondary flex items-center justify-center gap-2"><Film className="w-4 h-4" />Continue with Google</button>
+          <p className="text-center text-sm text-text-muted mt-6">Already have an account? <Link href="/auth/login" className="text-brand-gold font-semibold">Sign in</Link></p>
+        </div>
+      </motion.div>
+    </div>
+  );
+}

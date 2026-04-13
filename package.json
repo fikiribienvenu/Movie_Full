@@ -1,4 +1,5 @@
 {
+<<<<<<< HEAD
   "name": "cinemax",
   "version": "0.1.0",
   "private": true,
@@ -36,4 +37,18 @@
     "postcss": "^8",
     "autoprefixer": "^10.0.1"
   }
+=======
+  "name": "cinemax-fullstack",
+  "version": "1.0.0",
+  "description": "CineMax Movie Streaming Platform — Full Stack",
+  "private": true,
+  "scripts": {
+    "dev:frontend": "cd frontend && npm run dev",
+    "dev:backend": "cd backend && npm run dev",
+    "install:all": "cd frontend && npm install && cd ../backend && npm install",
+    "seed": "cd backend && npm run seed",
+    "build": "cd frontend && npm run build"
+  },
+  "workspaces": ["frontend", "backend"]
+>>>>>>> f6d02f0 (setting signup)
 }

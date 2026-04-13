@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 # 🎬 CineMax — Premium Movie Streaming Platform
 
 A modern, production-ready movie streaming & selling frontend built with **Next.js 14**, **TypeScript**, **Tailwind CSS**, and **Framer Motion**.
@@ -91,10 +92,98 @@ src/
 │
 └── types/
     └── index.ts                # TypeScript type definitions
+=======
+# 🎬 CineMax — Full Stack Movie Streaming Platform
+
+A complete, production-ready movie streaming platform with a **Next.js 14 frontend** and **Node.js/Express backend**, connected to **MongoDB**.
+
+---
+
+## 🏗️ Project Structure
+
+```
+cinemax-fullstack/
+├── frontend/                    # Next.js 14 App (TypeScript + Tailwind)
+│   ├── src/
+│   │   ├── app/                 # App Router pages (9 pages)
+│   │   ├── components/          # 11 reusable components
+│   │   ├── store/               # Zustand global state
+│   │   ├── hooks/               # Custom React hooks
+│   │   ├── lib/                 # Data helpers & utilities
+│   │   └── types/               # TypeScript interfaces
+│   ├── package.json
+│   ├── tailwind.config.ts
+│   └── next.config.mjs
+│
+├── backend/                     # Node.js + Express REST API
+│   ├── src/
+│   │   ├── server.js            # Entry point
+│   │   ├── app.js               # Express app
+│   │   ├── config/              # DB connection
+│   │   ├── models/              # 4 Mongoose schemas
+│   │   ├── controllers/         # 6 route controllers
+│   │   ├── routes/              # 6 Express routers
+│   │   ├── middleware/          # Auth, validation, upload, errors
+│   │   └── utils/               # JWT, email, logger, seeder
+│   ├── package.json
+│   └── .env.example
+│
+├── package.json                 # Root scripts
+└── .gitignore
 ```
 
 ---
 
+## 🚀 Quick Start
+
+### 1. Install all dependencies
+```bash
+cd cinemax-fullstack
+npm run install:all
+```
+
+### 2. Configure backend environment
+```bash
+cp backend/.env.example backend/.env
+```
+Edit `backend/.env`:
+```env
+MONGO_URI=mongodb://localhost:27017/cinemax
+JWT_SECRET=your-secret-key-min-32-characters-long
+CLIENT_URL=http://localhost:3000
+PORT=5000
+NODE_ENV=development
+```
+
+### 3. Configure frontend environment
+```bash
+# Create frontend/.env.local
+echo "NEXT_PUBLIC_API_URL=http://localhost:5000/api/v1" > frontend/.env.local
+```
+
+### 4. Seed the database
+```bash
+npm run seed
+```
+
+### 5. Start both servers
+
+**Terminal 1 — Backend:**
+```bash
+npm run dev:backend
+# Runs on http://localhost:5000
+```
+
+**Terminal 2 — Frontend:**
+```bash
+npm run dev:frontend
+# Runs on http://localhost:3000
+>>>>>>> f6d02f0 (setting signup)
+```
+
+---
+
+<<<<<<< HEAD
 ## 🎨 Design System
 
 ### Colors
@@ -179,9 +268,117 @@ Replace the `authStore.ts` login/signup actions with real API calls to your back
 - Movie images use Unsplash; replace with TMDB or your own CDN
 - Video player is mocked; integrate Mux or Cloudflare Stream for production
 - Auth is local state; connect to a backend (e.g., NextAuth.js) for production
+=======
+## 🔐 Default Credentials (after seeding)
+
+| Role  | Email                  | Password     |
+|-------|------------------------|--------------|
+| Admin | admin@cinemax.com      | Admin@1234   |
+| User  | alex@example.com       | Alex@1234    |
+
+---
+
+## 📡 API Base URL
+
+```
+http://localhost:5000/api/v1
+```
+
+### Key Endpoints
+
+| Endpoint                          | Description                    |
+|-----------------------------------|--------------------------------|
+| `POST /auth/signup`               | Register new account           |
+| `POST /auth/login`                | Login → JWT token + cookie     |
+| `GET  /movies`                    | List movies (filter, sort, paginate) |
+| `GET  /movies/featured`           | Get featured movie             |
+| `GET  /movies/trending`           | Get trending movies            |
+| `GET  /movies/search?q=batman`    | Full-text search               |
+| `GET  /movies/:id/stream`         | Stream URL (subscribers only)  |
+| `POST /subscriptions`             | Subscribe to a plan            |
+| `GET  /subscriptions/plans`       | Get all plan details           |
+| `GET  /users/me/watchlist`        | Get my watchlist               |
+| `GET  /admin/dashboard`           | Admin stats (admin only)       |
+
+---
+
+## 🎨 Frontend Features
+
+- Dark premium cinema theme (Bebas Neue + DM Sans)
+- Cinematic hero banner with featured movie
+- Movie grid with hover overlays, trailer & subscribe CTAs
+- Category filter bar with animated active pill
+- Full movie detail page — trailer vs full video (gated by subscription)
+- Login & signup with Zod validation
+- 3-tier pricing page (Basic, Premium, Annual)
+- User dashboard — profile, stats, watchlist, billing
+- Live search with debounce + category filters
+- Zustand state persisted in localStorage
+- Protected routes (auth + subscription guards)
+- Loading skeletons, Framer Motion animations
+
+---
+
+## ⚙️ Backend Features
+
+- JWT auth (Bearer + httpOnly cookie)
+- bcryptjs password hashing (12 rounds)
+- Helmet, CORS, rate limiting (100/15min global, 10/15min auth)
+- MongoDB text search across title, description, tags
+- Subscription system (mock Stripe, real structure)
+- Email: welcome, password reset, subscription confirm (Nodemailer)
+- Multer file uploads (avatar, movie images, video)
+- Winston logging (console dev, file prod)
+- Soft delete for users and movies
+- Admin dashboard with revenue stats and aggregations
+- Paginated, filterable, sortable movie API
+
+---
+
+## 🔗 Frontend ↔ Backend Integration
+
+To switch the frontend from mock data to the real API, update `src/store/authStore.ts`:
+
+```ts
+// Replace mock login with:
+login: async (email, password) => {
+  const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/auth/login`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    credentials: 'include',
+    body: JSON.stringify({ email, password }),
+  });
+  const data = await res.json();
+  if (data.success) set({ isLoggedIn: true, user: data.data.user });
+}
+```
+
+And update movie pages to fetch from `/api/v1/movies` instead of `src/lib/data.ts`.
+
+---
+
+## 🚢 Deployment
+
+### Frontend → Vercel
+```bash
+cd frontend
+npx vercel --prod
+# Set: NEXT_PUBLIC_API_URL=https://your-api.railway.app/api/v1
+```
+
+### Backend → Railway / Render
+1. Connect GitHub repo
+2. Set root directory to `backend/`
+3. Set environment variables (MONGO_URI, JWT_SECRET, etc.)
+4. Deploy
+>>>>>>> f6d02f0 (setting signup)
 
 ---
 
 ## 📄 License
 
+<<<<<<< HEAD
 MIT — use freely for personal and commercial projects.
+=======
+MIT — free for personal and commercial use.
+>>>>>>> f6d02f0 (setting signup)
