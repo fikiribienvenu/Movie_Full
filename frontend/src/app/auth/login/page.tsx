@@ -59,7 +59,7 @@ export default function LoginPage() {
         <div className="text-center mb-8">
           <Link href="/">
             <span className="font-display text-4xl tracking-widest text-brand-red">
-              CINE<span className="text-brand-gold">MAX</span>
+              REBA<span className="text-brand-gold">FLIX</span>
             </span>
           </Link>
           <p className="text-text-muted text-sm mt-2">Your premium movie destination</p>

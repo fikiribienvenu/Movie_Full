@@ -45,7 +45,7 @@ export default function SignupPage() {
     <div className="min-h-screen bg-bg-primary flex items-center justify-center px-4 py-12">
       <motion.div initial={{ opacity: 0, y: 24 }} animate={{ opacity: 1, y: 0 }} className="w-full max-w-[440px]">
         <div className="text-center mb-8">
-          <Link href="/"><span className="font-display text-4xl tracking-widest text-brand-red">CINE<span className="text-brand-gold">MAX</span></span></Link>
+          <Link href="/"><span className="font-display text-4xl tracking-widest text-brand-red">REBA<span className="text-brand-gold">FLIX</span></span></Link>
           <p className="text-text-muted text-sm mt-2">Start watching in minutes</p>
         </div>
         <div className="bg-bg-secondary border border-border rounded-2xl p-8 shadow-2xl">
