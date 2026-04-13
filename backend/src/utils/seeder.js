@@ -15,8 +15,8 @@ const Review = require("../models/Review.model");
 // ─── Seed Data ────────────────────────────────────────────────────────────────
 
 const adminUser = {
-  name: "Admin CineMax",
-  email: "admin@cinemax.com",
+  name: "Admin REBAFLIX",
+  email: "admin@REBAFLIX.com",
   password: "Admin@1234",
   role: "admin",
   isVerified: true,

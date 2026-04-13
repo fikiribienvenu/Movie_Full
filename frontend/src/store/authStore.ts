@@ -106,7 +106,7 @@ export const useAuthStore = create<AuthStore>()(
       isInWatchlist: (movieId: number) => get().watchlist.includes(movieId),
     }),
     {
-      name: "cinemax-auth",
+      name: "REBAFLIX-auth",
       partialize: (state) => ({
         isLoggedIn: state.isLoggedIn,
         isSubscribed: state.isSubscribed,

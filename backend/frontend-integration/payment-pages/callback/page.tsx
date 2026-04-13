@@ -88,7 +88,7 @@ function CallbackContent() {
           ✦ Payment Successful
         </div>
         <h2 className="font-display text-4xl tracking-wider mb-3 uppercase">
-          Welcome to CineMax {plan && plan.charAt(0).toUpperCase() + plan.slice(1)}!
+          Welcome to REBAFLIX {plan && plan.charAt(0).toUpperCase() + plan.slice(1)}!
         </h2>
         <p className="text-text-muted text-sm mb-2">Your subscription is now active.</p>
         {txnId && (

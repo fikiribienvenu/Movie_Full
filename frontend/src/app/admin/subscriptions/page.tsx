@@ -27,7 +27,7 @@ export default function AdminSubscriptionsPage() {
     setIsLoading(true);
     setError(null);
     try {
-      const token = localStorage.getItem("cinemax_token");
+      const token = localStorage.getItem("REBAFLIX_token");
       const res = await fetch(
         `${process.env.NEXT_PUBLIC_API_URL}/admin/subscriptions?status=${filter}`,
         { headers: { Authorization: `Bearer ${token}` } }
@@ -47,7 +47,7 @@ export default function AdminSubscriptionsPage() {
   const handleAction = async (subscriptionId: string, action: "approve" | "reject") => {
     setActionLoading(subscriptionId + action);
     try {
-      const token = localStorage.getItem("cinemax_token");
+      const token = localStorage.getItem("REBAFLIX_token");
       const res = await fetch(
         `${process.env.NEXT_PUBLIC_API_URL}/admin/subscriptions/${subscriptionId}/${action}`,
         {

@@ -1,5 +1,5 @@
 <<<<<<< HEAD
-# 🎬 CineMax — Premium Movie Streaming Platform
+# 🎬 REBAFLIX — Premium Movie Streaming Platform
 
 A modern, production-ready movie streaming & selling frontend built with **Next.js 14**, **TypeScript**, **Tailwind CSS**, and **Framer Motion**.
 
@@ -32,7 +32,7 @@ A modern, production-ready movie streaming & selling frontend built with **Next.
 
 ```bash
 # Clone the project
-cd cinemax
+cd REBAFLIX
 
 # Install dependencies
 npm install
@@ -93,7 +93,7 @@ src/
 └── types/
     └── index.ts                # TypeScript type definitions
 =======
-# 🎬 CineMax — Full Stack Movie Streaming Platform
+# 🎬 REBAFLIX — Full Stack Movie Streaming Platform
 
 A complete, production-ready movie streaming platform with a **Next.js 14 frontend** and **Node.js/Express backend**, connected to **MongoDB**.
 
@@ -102,7 +102,7 @@ A complete, production-ready movie streaming platform with a **Next.js 14 fronte
 ## 🏗️ Project Structure
 
 ```
-cinemax-fullstack/
+REBAFLIX-fullstack/
 ├── frontend/                    # Next.js 14 App (TypeScript + Tailwind)
 │   ├── src/
 │   │   ├── app/                 # App Router pages (9 pages)
@@ -138,7 +138,7 @@ cinemax-fullstack/
 
 ### 1. Install all dependencies
 ```bash
-cd cinemax-fullstack
+cd REBAFLIX-fullstack
 npm run install:all
 ```
 
@@ -148,7 +148,7 @@ cp backend/.env.example backend/.env
 ```
 Edit `backend/.env`:
 ```env
-MONGO_URI=mongodb://localhost:27017/cinemax
+MONGO_URI=mongodb://localhost:27017/REBAFLIX
 JWT_SECRET=your-secret-key-min-32-characters-long
 CLIENT_URL=http://localhost:3000
 PORT=5000
@@ -273,7 +273,7 @@ Replace the `authStore.ts` login/signup actions with real API calls to your back
 
 | Role  | Email                  | Password     |
 |-------|------------------------|--------------|
-| Admin | admin@cinemax.com      | Admin@1234   |
+| Admin | admin@REBAFLIX.com      | Admin@1234   |
 | User  | alex@example.com       | Alex@1234    |
 
 ---

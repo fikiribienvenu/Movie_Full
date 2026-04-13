@@ -65,7 +65,7 @@ exports.initiatePayment = asyncHandler(async (req, res, next) => {
     userId: user._id.toString(),
     planId,
     planName: planConfig.name,
-    comment: `CineMax ${planConfig.name} Subscription — ${user.email}`,
+    comment: `REBAFLIX ${planConfig.name} Subscription — ${user.email}`,
   });
 
   // Pre-create a PENDING subscription record so we can match it on callback

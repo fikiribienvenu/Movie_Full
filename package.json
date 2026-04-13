@@ -1,7 +1,7 @@
 {
-  "name": "cinemax-fullstack",
+  "name": "REBAFLIX-fullstack",
   "version": "1.0.0",
-  "description": "CineMax Movie Streaming Platform — Full Stack",
+  "description": "REBAFLIX Movie Streaming Platform — Full Stack",
   "private": true,
   "scripts": {
     "dev:frontend": "cd frontend && npm run dev",

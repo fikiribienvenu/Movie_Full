@@ -18,7 +18,7 @@ const createTransporter = () => {
 
 const templates = {
   welcome: (name) => ({
-    subject: "Welcome to CineMax! 🎬",
+    subject: "Welcome to REBAFLIX! 🎬",
     html: `
       <div style="font-family:sans-serif;max-width:520px;margin:0 auto;background:#0a0a0f;color:#fff;border-radius:16px;overflow:hidden">
         <div style="background:#e50914;padding:32px;text-align:center">
@@ -26,7 +26,7 @@ const templates = {
         </div>
         <div style="padding:32px">
           <h2 style="color:#f5c518">Welcome, ${name}! 🎬</h2>
-          <p style="color:#b3b3cc;line-height:1.6">Your CineMax account is ready. Start exploring thousands of movies in stunning 4K Ultra HD.</p>
+          <p style="color:#b3b3cc;line-height:1.6">Your REBAFLIX account is ready. Start exploring thousands of movies in stunning 4K Ultra HD.</p>
           <a href="${process.env.CLIENT_URL}/pricing" style="display:inline-block;margin-top:20px;padding:12px 28px;background:#e50914;color:#fff;border-radius:8px;text-decoration:none;font-weight:bold">
             Choose Your Plan →
           </a>
@@ -37,7 +37,7 @@ const templates = {
   }),
 
   passwordReset: (name, resetUrl) => ({
-    subject: "Reset Your CineMax Password 🔑",
+    subject: "Reset Your REBAFLIX Password 🔑",
     html: `
       <div style="font-family:sans-serif;max-width:520px;margin:0 auto;background:#0a0a0f;color:#fff;border-radius:16px;overflow:hidden">
         <div style="background:#e50914;padding:32px;text-align:center">
@@ -56,7 +56,7 @@ const templates = {
   }),
 
   subscriptionConfirm: (name, plan, endDate) => ({
-    subject: `CineMax ${plan} Plan Activated! ✦`,
+    subject: `REBAFLIX ${plan} Plan Activated! ✦`,
     html: `
       <div style="font-family:sans-serif;max-width:520px;margin:0 auto;background:#0a0a0f;color:#fff;border-radius:16px;overflow:hidden">
         <div style="background:#f5c518;padding:32px;text-align:center">
@@ -83,7 +83,7 @@ const sendEmail = async ({ to, subject, html }) => {
     }
     const transporter = createTransporter();
     const info = await transporter.sendMail({
-      from: process.env.EMAIL_FROM || "CineMax <noreply@cinemax.com>",
+      from: process.env.EMAIL_FROM || "REBAFLIX <noreply@REBAFLIX.com>",
       to,
       subject,
       html,

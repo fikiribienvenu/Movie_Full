@@ -1,4 +1,4 @@
-# 🎬 CineMax — Premium Movie Streaming Platform
+# 🎬 REBAFLIX — Premium Movie Streaming Platform
 
 A modern, production-ready movie streaming & selling frontend built with **Next.js 14**, **TypeScript**, **Tailwind CSS**, and **Framer Motion**.
 
@@ -31,7 +31,7 @@ A modern, production-ready movie streaming & selling frontend built with **Next.
 
 ```bash
 # Clone the project
-cd cinemax
+cd REBAFLIX
 
 # Install dependencies
 npm install

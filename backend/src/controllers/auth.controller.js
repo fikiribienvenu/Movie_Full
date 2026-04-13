@@ -26,7 +26,7 @@ exports.signup = asyncHandler(async (req, res, next) => {
   );
 
   logger.info(`New user registered: ${user.email}`);
-  createSendToken(user, 201, res, "Account created successfully. Welcome to CineMax!");
+  createSendToken(user, 201, res, "Account created successfully. Welcome to REBAFLIX!");
 });
 
 // ─── Login ────────────────────────────────────────────────────────────────────

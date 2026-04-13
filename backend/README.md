@@ -1,6 +1,6 @@
-# 🎬 CineMax Backend — Node.js REST API
+# 🎬 REBAFLIX Backend — Node.js REST API
 
-A production-ready REST API for the CineMax movie streaming platform, built with **Node.js**, **Express**, and **MongoDB**.
+A production-ready REST API for the REBAFLIX movie streaming platform, built with **Node.js**, **Express**, and **MongoDB**.
 
 ---
 
@@ -78,7 +78,7 @@ src/
 ### 1. Install dependencies
 
 ```bash
-cd cinemax-backend
+cd REBAFLIX-backend
 npm install
 ```
 
@@ -91,7 +91,7 @@ cp .env.example .env
 
 Minimum required:
 ```env
-MONGO_URI=mongodb://localhost:27017/cinemax
+MONGO_URI=mongodb://localhost:27017/REBAFLIX
 JWT_SECRET=your-secret-key-min-32-characters
 CLIENT_URL=http://localhost:3000
 PORT=5000
@@ -105,7 +105,7 @@ npm run seed
 
 This creates:
 - 12 movies with full metadata
-- Admin user: `admin@cinemax.com` / `Admin@1234`
+- Admin user: `admin@REBAFLIX.com` / `Admin@1234`
 - Regular user: `alex@example.com` / `Alex@1234` (Premium subscriber)
 - Sample reviews
 
@@ -356,7 +356,7 @@ export const api = {
 
 | Role | Email | Password |
 |------|-------|----------|
-| Admin | `admin@cinemax.com` | `Admin@1234` |
+| Admin | `admin@REBAFLIX.com` | `Admin@1234` |
 | User (Premium) | `alex@example.com` | `Alex@1234` |
 
 ---

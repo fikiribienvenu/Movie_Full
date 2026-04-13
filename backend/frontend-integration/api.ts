@@ -1,7 +1,7 @@
 // frontend-integration/api.ts
 // ─────────────────────────────────────────────────────────────────────────────
 // Drop this file into your Next.js frontend at: src/lib/api.ts
-// It provides typed fetch wrappers for all CineMax backend endpoints.
+// It provides typed fetch wrappers for all REBAFLIX backend endpoints.
 // ─────────────────────────────────────────────────────────────────────────────
 
 const API_BASE = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000/api/v1";
