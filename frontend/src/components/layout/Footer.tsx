@@ -32,7 +32,7 @@ export default function Footer() {
           <div className="lg:col-span-1">
             <Link href="/">
               <span className="font-display text-4xl tracking-widest text-brand-red">
-                CINE<span className="text-brand-gold">MAX</span>
+                REBA<span className="text-brand-gold">FLIX</span>
               </span>
             </Link>
             <p className="mt-3 text-sm text-text-muted leading-relaxed max-w-xs">
