@@ -1,3 +1,5 @@
+// src/app/payment/pending/page.tsx
+"use client";
 
 import { Suspense } from "react";
 import { motion } from "framer-motion";
@@ -34,7 +36,7 @@ export default function PaymentPendingPage() {
   return (
     <>
       <Navbar />
-      <Suspense fallback={<div className="min-h-screen flex items-center justify-center">Loading...</div>}>
+      <Suspense fallback={<div className="min-h-screen flex items-center justify-center text-text-muted">Loading...</div>}>
         <PendingContent />
       </Suspense>
     </>
