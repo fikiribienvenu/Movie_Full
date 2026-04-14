@@ -126,7 +126,7 @@ exports.rejectSubscription = asyncHandler(async (req, res, next) => {
 // ─── Users ────────────────────────────────────────────────────────────────────
 exports.listUsers = asyncHandler(async (req, res) => {
   const { search } = req.query;
-  const filter: any = {};
+  const filter = {};
   if (search) {
     filter.$or = [
       { name: { $regex: search, $options: "i" } },
@@ -162,7 +162,7 @@ exports.toggleUserActive = asyncHandler(async (req, res, next) => {
 // ─── Movies ───────────────────────────────────────────────────────────────────
 exports.listMovies = asyncHandler(async (req, res) => {
   const { search } = req.query;
-  const filter: any = {};
+  const filter = {};
   if (search) {
     filter.$or = [
       { title: { $regex: search, $options: "i" } },

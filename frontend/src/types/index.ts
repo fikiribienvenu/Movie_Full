@@ -63,3 +63,15 @@ export interface SearchFilters {
   category: Category | "all";
   sortBy: "rating" | "year" | "title";
 }
+export interface User {
+  id: string;
+  name: string;
+  email: string;
+  createdAt: string;
+  role?: "user" | "admin";  // ← add this line
+  subscription?: {
+    plan: string;
+    status: string;
+    currentPeriodEnd?: string;
+  };
+}
