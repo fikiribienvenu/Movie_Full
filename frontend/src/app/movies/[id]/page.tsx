@@ -1,224 +1,220 @@
-// src/app/admin/movies/page.tsx
+// src/app/movies/[id]/page.tsx
 "use client";
 
-import { useEffect, useState } from "react";
+import { useParams } from "next/navigation";
+import { notFound } from "next/navigation";
+import Image from "next/image";
+import Link from "next/link";
 import { motion } from "framer-motion";
-import { Plus, Search, Edit, Trash2, Film, Eye, Star, RefreshCw } from "lucide-react";
+import { Play, Star, Clock, Calendar, Lock, Plus, Check, ArrowLeft } from "lucide-react";
+import Navbar from "@/components/layout/Navbar";
+import Footer from "@/components/layout/Footer";
+import MovieGrid from "@/components/movies/MovieGrid";
+import { getMovieById, movies } from "@/lib/data";
 import { useAuth } from "@/hooks/useAuth";
-import { cn } from "@/lib/utils";
-import MovieFormModal from "@/components/admin/MovieFormModal";
 
-const API = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000/api/v1";
+export default function MovieDetailPage() {
+  const params = useParams();
+  const id = parseInt(params.id as string, 10);
+  const movie = getMovieById(id);
+  const { isSubscribed, isLoggedIn, isInWatchlist, addToWatchlist, removeFromWatchlist } = useAuth();
 
-export default function AdminMoviesPage() {
-  const { token } = useAuth();
-  const [movies, setMovies] = useState<any[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
-  const [search, setSearch] = useState("");
-  const [showModal, setShowModal] = useState(false);
-  const [editMovie, setEditMovie] = useState<any | null>(null);
-  const [error, setError] = useState<string | null>(null);
+  if (!movie) return notFound();
 
-  const fetchMovies = async () => {
-    setIsLoading(true);
-    try {
-      const res = await fetch(`${API}/admin/movies?search=${search}`, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
-      const data = await res.json();
-      if (res.ok) setMovies(data.data.movies);
-    } catch (err) {
-      setError("Failed to load movies");
-    } finally {
-      setIsLoading(false);
-    }
-  };
+  const inWatchlist = isInWatchlist(movie.id);
+  const related = movies.filter((m) => m.category === movie.category && m.id !== movie.id).slice(0, 6);
 
-  useEffect(() => { if (token) fetchMovies(); }, [token, search]);
-
-  const handleDelete = async (id: string) => {
-    if (!confirm("Are you sure you want to delete this movie?")) return;
-    try {
-      const res = await fetch(`${API}/admin/movies/${id}`, {
-        method: "DELETE",
-        headers: { Authorization: `Bearer ${token}` },
-      });
-      if (res.ok) fetchMovies();
-    } catch (err) {
-      setError("Failed to delete movie");
-    }
-  };
-
-  const handleToggleFeatured = async (id: string, current: boolean) => {
-    try {
-      await fetch(`${API}/admin/movies/${id}`, {
-        method: "PATCH",
-        headers: { Authorization: `Bearer ${token}`, "Content-Type": "application/json" },
-        body: JSON.stringify({ isFeatured: !current }),
-      });
-      fetchMovies();
-    } catch (err) {}
+  const handleWatchlist = () => {
+    if (!isLoggedIn) return;
+    if (inWatchlist) removeFromWatchlist(movie.id);
+    else addToWatchlist(movie.id);
   };
 
   return (
-    <div className="p-8 space-y-6">
-      {/* Header */}
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-3xl font-bold text-text-primary">Movies</h1>
-          <p className="text-text-muted text-sm mt-1">{movies.length} movies total</p>
-        </div>
-        <button
-          onClick={() => { setEditMovie(null); setShowModal(true); }}
-          className="flex items-center gap-2 px-4 py-2.5 bg-brand-red text-white rounded-xl text-sm font-bold hover:bg-brand-red-dark transition-colors"
-        >
-          <Plus className="w-4 h-4" />
-          Add Movie
-        </button>
-      </div>
+    <>
+      <Navbar />
+      <main className="min-h-screen">
+        {/* Backdrop */}
+        <div className="relative h-[55vh] min-h-[360px] overflow-hidden">
+          <Image
+            src={movie.backdropUrl}
+            alt={movie.title}
+            fill
+            priority
+            className="object-cover object-top brightness-[0.28]"
+            sizes="100vw"
+          />
+          <div className="absolute inset-0 bg-gradient-to-t from-bg-primary via-bg-primary/50 to-bg-primary/10" />
+          <div className="absolute inset-0 bg-gradient-to-r from-bg-primary/60 to-transparent" />
 
-      {/* Search */}
-      <div className="relative max-w-md">
-        <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-text-muted" />
-        <input
-          type="text"
-          value={search}
-          onChange={(e) => setSearch(e.target.value)}
-          placeholder="Search movies..."
-          className="w-full bg-bg-card border border-border rounded-xl pl-10 pr-4 py-2.5 text-sm text-text-primary placeholder-text-muted outline-none focus:border-brand-red/60 transition-colors"
-        />
-      </div>
-
-      {error && (
-        <div className="p-3 bg-red-500/10 border border-red-500/20 rounded-xl text-red-400 text-sm">{error}</div>
-      )}
-
-      {/* Movies Table */}
-      {isLoading ? (
-        <div className="flex items-center justify-center py-20">
-          <RefreshCw className="w-6 h-6 text-brand-gold animate-spin" />
+          {/* Back button */}
+          <div className="absolute top-20 left-0 right-0 max-w-screen-2xl mx-auto px-4 sm:px-6 lg:px-8">
+            <Link
+              href="/"
+              className="inline-flex items-center gap-2 text-text-secondary hover:text-text-primary text-sm font-medium transition-colors"
+            >
+              <ArrowLeft className="w-4 h-4" />
+              Back
+            </Link>
+          </div>
         </div>
-      ) : movies.length === 0 ? (
-        <div className="text-center py-20">
-          <Film className="w-10 h-10 text-text-muted mx-auto mb-3 opacity-30" />
-          <p className="text-text-muted">No movies found. Add your first movie!</p>
-        </div>
-      ) : (
-        <div className="bg-bg-card border border-border rounded-2xl overflow-hidden">
-          <table className="w-full">
-            <thead>
-              <tr className="border-b border-border">
-                <th className="text-left px-5 py-3.5 text-xs font-bold text-text-muted uppercase tracking-wider">Movie</th>
-                <th className="text-left px-5 py-3.5 text-xs font-bold text-text-muted uppercase tracking-wider">Category</th>
-                <th className="text-left px-5 py-3.5 text-xs font-bold text-text-muted uppercase tracking-wider">Year</th>
-                <th className="text-left px-5 py-3.5 text-xs font-bold text-text-muted uppercase tracking-wider">Rating</th>
-                <th className="text-left px-5 py-3.5 text-xs font-bold text-text-muted uppercase tracking-wider">Status</th>
-                <th className="text-left px-5 py-3.5 text-xs font-bold text-text-muted uppercase tracking-wider">Actions</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-border">
-              {movies.map((movie, i) => (
-                <motion.tr
-                  key={movie._id}
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
-                  transition={{ delay: i * 0.03 }}
-                  className="hover:bg-bg-elevated transition-colors"
-                >
-                  <td className="px-5 py-4">
-                    <div className="flex items-center gap-3">
-                      <div className="w-10 h-14 rounded-lg overflow-hidden bg-bg-elevated flex-shrink-0">
-                        {movie.poster?.url ? (
-                          <img src={movie.poster.url} alt={movie.title} className="w-full h-full object-cover" />
-                        ) : (
-                          <div className="w-full h-full flex items-center justify-center">
-                            <Film className="w-4 h-4 text-text-muted" />
-                          </div>
-                        )}
+
+        {/* Detail Content */}
+        <div className="max-w-screen-2xl mx-auto px-4 sm:px-6 lg:px-8 -mt-48 relative z-10 pb-16">
+          <div className="grid grid-cols-1 lg:grid-cols-[280px_1fr] gap-8 lg:gap-12">
+
+            {/* Poster */}
+            <motion.div
+              initial={{ opacity: 0, y: 30 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.5 }}
+              className="hidden lg:block"
+            >
+              <div className="relative aspect-[2/3] rounded-2xl overflow-hidden border border-border shadow-card">
+                <Image
+                  src={movie.poster}
+                  alt={movie.title}
+                  fill
+                  className="object-cover"
+                  sizes="280px"
+                />
+              </div>
+            </motion.div>
+
+            {/* Info */}
+            <motion.div
+              initial={{ opacity: 0, y: 30 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.5, delay: 0.1 }}
+            >
+              {/* Title */}
+              <h1 className="font-display text-[clamp(36px,5vw,68px)] leading-none tracking-wider uppercase text-text-primary mb-4">
+                {movie.title}
+              </h1>
+
+              {/* Tags */}
+              <div className="flex flex-wrap gap-2 mb-5">
+                <span className="flex items-center gap-1.5 px-3 py-1.5 bg-brand-gold/10 border border-brand-gold/25 text-brand-gold text-xs font-semibold rounded-full">
+                  <Star className="w-3 h-3 fill-brand-gold" /> {movie.rating}
+                </span>
+                <span className="flex items-center gap-1.5 px-3 py-1.5 bg-bg-tertiary border border-border text-text-secondary text-xs font-medium rounded-full">
+                  <Calendar className="w-3 h-3" /> {movie.year}
+                </span>
+                <span className="flex items-center gap-1.5 px-3 py-1.5 bg-bg-tertiary border border-border text-text-secondary text-xs font-medium rounded-full">
+                  <Clock className="w-3 h-3" /> {movie.duration}
+                </span>
+                {movie.genre.split(" · ").map((g) => (
+                  <span key={g} className="px-3 py-1.5 bg-brand-red/10 border border-brand-red/20 text-brand-red text-xs font-medium rounded-full">
+                    {g}
+                  </span>
+                ))}
+              </div>
+
+              {/* Description */}
+              <p className="text-text-secondary text-base leading-relaxed mb-6 max-w-2xl">
+                {movie.description}
+              </p>
+
+              {/* Director & Cast */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-8">
+                <div>
+                  <p className="text-xs text-text-muted uppercase tracking-widest font-semibold mb-1">Director</p>
+                  <p className="text-sm text-text-primary font-medium">{movie.director}</p>
+                </div>
+                <div>
+                  <p className="text-xs text-text-muted uppercase tracking-widest font-semibold mb-1">Cast</p>
+                  <p className="text-sm text-text-primary font-medium">{movie.cast.slice(0, 3).join(", ")}</p>
+                </div>
+              </div>
+
+              {/* Action Buttons */}
+              <div className="flex flex-wrap gap-3 mb-10">
+                {isSubscribed ? (
+                  <button className="flex items-center gap-2 px-7 py-3.5 bg-brand-red text-white rounded-xl font-bold text-sm hover:bg-brand-red-dark active:scale-95 transition-all shadow-red">
+                    <Play className="w-4 h-4 fill-white" />
+                    Watch Full Movie
+                  </button>
+                ) : (
+                  <Link
+                    href="/pricing"
+                    className="flex items-center gap-2 px-7 py-3.5 bg-brand-gold text-black rounded-xl font-bold text-sm hover:bg-brand-gold-dark active:scale-95 transition-all shadow-gold"
+                  >
+                    ✦ Subscribe to Watch
+                  </Link>
+                )}
+
+                {isLoggedIn && (
+                  <button
+                    onClick={handleWatchlist}
+                    className={`flex items-center gap-2 px-5 py-3.5 rounded-xl font-bold text-sm border transition-all active:scale-95 ${
+                      inWatchlist
+                        ? "bg-brand-gold/15 border-brand-gold/40 text-brand-gold"
+                        : "bg-bg-tertiary border-border text-text-secondary hover:text-text-primary hover:border-text-muted"
+                    }`}
+                  >
+                    {inWatchlist ? <Check className="w-4 h-4" /> : <Plus className="w-4 h-4" />}
+                    {inWatchlist ? "In My List" : "Add to List"}
+                  </button>
+                )}
+              </div>
+
+              {/* Video Player / Trailer Area */}
+              <div className="rounded-2xl overflow-hidden border border-border bg-bg-tertiary aspect-video relative">
+                {isSubscribed ? (
+                  <div className="absolute inset-0 flex flex-col items-center justify-center gap-4">
+                    <div className="w-18 h-18 w-[72px] h-[72px] rounded-full bg-brand-red/20 border-2 border-brand-red flex items-center justify-center cursor-pointer hover:bg-brand-red group transition-all">
+                      <Play className="w-8 h-8 fill-brand-red group-hover:fill-white text-brand-red group-hover:text-white ml-1 transition-colors" />
+                    </div>
+                    <div className="text-center">
+                      <p className="text-text-secondary text-sm font-medium">Full Movie Available</p>
+                      <p className="text-text-muted text-xs mt-1">4K · Dolby Audio · CC Available</p>
+                    </div>
+                  </div>
+                ) : (
+                  <>
+                    {/* Trailer Preview */}
+                    <div className="absolute inset-0 flex items-center justify-center">
+                      <div className="text-center">
+                        <div className="w-[72px] h-[72px] rounded-full bg-white/10 border-2 border-white/30 flex items-center justify-center cursor-pointer hover:bg-white/20 transition-all mx-auto mb-3">
+                          <Play className="w-8 h-8 fill-white text-white ml-1" />
+                        </div>
+                        <p className="text-text-secondary text-sm">Trailer Preview</p>
                       </div>
-                      <div>
-                        <p className="font-semibold text-sm text-text-primary">{movie.title}</p>
-                        <p className="text-xs text-text-muted">{movie.director}</p>
-                      </div>
                     </div>
-                  </td>
-                  <td className="px-5 py-4">
-                    <span className="text-xs font-semibold px-2.5 py-1 rounded-full bg-bg-elevated border border-border text-text-secondary">
-                      {movie.category}
-                    </span>
-                  </td>
-                  <td className="px-5 py-4 text-sm text-text-secondary">{movie.year}</td>
-                  <td className="px-5 py-4">
-                    <div className="flex items-center gap-1">
-                      <Star className="w-3 h-3 text-brand-gold fill-brand-gold" />
-                      <span className="text-sm font-bold text-brand-gold">{movie.rating}</span>
-                    </div>
-                  </td>
-                  <td className="px-5 py-4">
-                    <div className="flex flex-col gap-1">
-                      {movie.isFeatured && (
-                        <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-brand-gold/10 border border-brand-gold/20 text-brand-gold w-fit">
-                          FEATURED
-                        </span>
-                      )}
-                      {movie.isTrending && (
-                        <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-brand-red/10 border border-brand-red/20 text-brand-red w-fit">
-                          TRENDING
-                        </span>
-                      )}
-                      {!movie.isFeatured && !movie.isTrending && (
-                        <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-bg-elevated border border-border text-text-muted w-fit">
-                          NORMAL
-                        </span>
-                      )}
-                    </div>
-                  </td>
-                  <td className="px-5 py-4">
-                    <div className="flex items-center gap-2">
-                      <button
-                        onClick={() => { setEditMovie(movie); setShowModal(true); }}
-                        className="p-1.5 rounded-lg text-text-muted hover:text-brand-gold hover:bg-brand-gold/10 transition-colors"
-                        title="Edit"
-                      >
-                        <Edit className="w-4 h-4" />
-                      </button>
-                      <button
-                        onClick={() => handleToggleFeatured(movie._id, movie.isFeatured)}
-                        className={cn(
-                          "p-1.5 rounded-lg transition-colors",
-                          movie.isFeatured
-                            ? "text-brand-gold bg-brand-gold/10"
-                            : "text-text-muted hover:text-brand-gold hover:bg-brand-gold/10"
-                        )}
-                        title="Toggle Featured"
-                      >
-                        <Eye className="w-4 h-4" />
-                      </button>
-                      <button
-                        onClick={() => handleDelete(movie._id)}
-                        className="p-1.5 rounded-lg text-text-muted hover:text-red-400 hover:bg-red-500/10 transition-colors"
-                        title="Delete"
-                      >
-                        <Trash2 className="w-4 h-4" />
-                      </button>
-                    </div>
-                  </td>
-                </motion.tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-      )}
 
-      {/* Movie Form Modal */}
-      {showModal && (
-        <MovieFormModal
-          movie={editMovie}
-          onClose={() => setShowModal(false)}
-          onSaved={() => { setShowModal(false); fetchMovies(); }}
-          token={token!}
-        />
-      )}
-    </div>
+                    {/* Lock Overlay */}
+                    <div className="absolute inset-0 bg-bg-primary/80 backdrop-blur-md flex flex-col items-center justify-center gap-4 rounded-2xl">
+                      <div className="w-14 h-14 rounded-full bg-brand-gold/10 border border-brand-gold/25 flex items-center justify-center">
+                        <Lock className="w-6 h-6 text-brand-gold" />
+                      </div>
+                      <div className="text-center">
+                        <h3 className="font-display text-2xl tracking-wider mb-1">Full Movie Locked</h3>
+                        <p className="text-text-muted text-sm max-w-xs">
+                          Subscribe to unlock this and thousands of movies in 4K Ultra HD.
+                        </p>
+                      </div>
+                      <Link
+                        href="/pricing"
+                        className="flex items-center gap-2 px-7 py-3 bg-brand-gold text-black rounded-xl font-bold text-sm hover:bg-brand-gold-dark active:scale-95 transition-all shadow-gold"
+                      >
+                        ✦ Subscribe Now — From $8/mo
+                      </Link>
+                    </div>
+                  </>
+                )}
+              </div>
+            </motion.div>
+          </div>
+
+          {/* Related Movies */}
+          {related.length > 0 && (
+            <div className="mt-16">
+              <MovieGrid title={`More ${movie.category} Movies`} movies={related} />
+            </div>
+          )}
+        </div>
+      </main>
+      <Footer />
+    </>
   );
 }
