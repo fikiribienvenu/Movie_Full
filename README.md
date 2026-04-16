@@ -1,11 +1,11 @@
 <<<<<<< HEAD
-# 🎬 REBAFLIX — Premium Movie Streaming Platform
+#  REBAFLIX — Premium Movie Streaming Platform
 
 A modern, production-ready movie streaming & selling frontend built with **Next.js 14**, **TypeScript**, **Tailwind CSS**, and **Framer Motion**.
 
 ---
 
-## ✨ Features
+## Features
 
 - **Authentication** — Login & Signup with full form validation (Zod + React Hook Form)
 - **Home Page** — Cinematic hero banner, movie categories, category filtering
@@ -21,7 +21,7 @@ A modern, production-ready movie streaming & selling frontend built with **Next.
 
 ---
 
-## 🚀 Getting Started
+##  Getting Started
 
 ### Prerequisites
 
@@ -45,7 +45,7 @@ Open [http://localhost:3000](http://localhost:3000) in your browser.
 
 ---
 
-## 📁 Project Structure
+##  Project Structure
 
 ```
 src/
@@ -93,13 +93,13 @@ src/
 └── types/
     └── index.ts                # TypeScript type definitions
 =======
-# 🎬 REBAFLIX — Full Stack Movie Streaming Platform
+#  REBAFLIX — Full Stack Movie Streaming Platform
 
 A complete, production-ready movie streaming platform with a **Next.js 14 frontend** and **Node.js/Express backend**, connected to **MongoDB**.
 
 ---
 
-## 🏗️ Project Structure
+##  Project Structure
 
 ```
 REBAFLIX-fullstack/
@@ -134,7 +134,7 @@ REBAFLIX-fullstack/
 
 ---
 
-## 🚀 Quick Start
+##  Quick Start
 
 ### 1. Install all dependencies
 ```bash
@@ -184,7 +184,7 @@ npm run dev:frontend
 ---
 
 <<<<<<< HEAD
-## 🎨 Design System
+##  Design System
 
 ### Colors
 | Token | Value | Usage |
@@ -202,7 +202,7 @@ npm run dev:frontend
 
 ---
 
-## 🔐 Authentication Flow
+##  Authentication Flow
 
 1. User visits **Sign Up** → fills form (name, email, password, confirm) → redirected to Pricing
 2. User chooses a **Plan** → mock payment → redirected to Dashboard
@@ -212,7 +212,7 @@ npm run dev:frontend
 
 ---
 
-## 📦 Key Dependencies
+##  Key Dependencies
 
 | Package | Purpose |
 |---------|---------|
@@ -262,7 +262,7 @@ Replace the `authStore.ts` login/signup actions with real API calls to your back
 
 ---
 
-## 📝 Notes
+##  Notes
 
 - This is a **demo frontend** — no real payments are processed
 - Movie images use Unsplash; replace with TMDB or your own CDN
@@ -273,8 +273,8 @@ Replace the `authStore.ts` login/signup actions with real API calls to your back
 
 | Role  | Email                  | Password     |
 |-------|------------------------|--------------|
-| Admin | admin@REBAFLIX.com      | Admin@1234   |
-| User  | alex@example.com       | Alex@1234    |
+| Admin | admin11@REBAFLIX.com      | Admin@1234   |
+| User  | alex@22example.com       | Alex@1234    |
 
 ---
 
@@ -302,7 +302,7 @@ http://localhost:5000/api/v1
 
 ---
 
-## 🎨 Frontend Features
+##  Frontend Features
 
 - Dark premium cinema theme (Bebas Neue + DM Sans)
 - Cinematic hero banner with featured movie
@@ -319,7 +319,7 @@ http://localhost:5000/api/v1
 
 ---
 
-## ⚙️ Backend Features
+##  Backend Features
 
 - JWT auth (Bearer + httpOnly cookie)
 - bcryptjs password hashing (12 rounds)
@@ -335,7 +335,7 @@ http://localhost:5000/api/v1
 
 ---
 
-## 🔗 Frontend ↔ Backend Integration
+##  Frontend ↔ Backend Integration
 
 To switch the frontend from mock data to the real API, update `src/store/authStore.ts`:
 
@@ -357,7 +357,7 @@ And update movie pages to fetch from `/api/v1/movies` instead of `src/lib/data.t
 
 ---
 
-## 🚢 Deployment
+##  Deployment
 
 ### Frontend → Vercel
 ```bash
@@ -375,10 +375,48 @@ npx vercel --prod
 
 ---
 
-## 📄 License
+##  License
 
 <<<<<<< HEAD
 MIT — use freely for personal and commercial projects.
 =======
 MIT — free for personal and commercial use.
 >>>>>>> f6d02f0 (setting signup)
+
+
+To link rebaflix.com to your Vercel deployment, follow these steps:
+
+Step 1 — Add domain in Vercel
+
+Go to vercel.com → open your Movie_Full project
+Click Settings → Domains
+Click Add Domain
+Type rebaflix.com → click Add
+Also add www.rebaflix.com → click Add
+Vercel will show you DNS records to add — keep this page open
+
+
+Step 2 — Update DNS in Hostinger
+
+Go to hpanel.hostinger.com
+Click Domains → click rebaflix.com
+Click DNS / Nameservers → DNS Records
+You need to add/update these records:
+
+TypeNameValueA@76.76.21.21CNAMEwwwcname.vercel-dns.com
+
+Delete any existing A or CNAME records that conflict
+Save changes
+
+
+Step 3 — Wait for propagation
+DNS changes take 5 minutes to 48 hours to propagate. Usually it's done within 30 minutes.
+You can check progress at dnschecker.org — type rebaflix.com and watch for the green checkmarks.
+
+Step 4 — Verify in Vercel
+Once DNS propagates, go back to Vercel → Settings → Domains. You'll see a green Valid Configuration checkmark next to rebaflix.com. Vercel also automatically issues a free SSL certificate so your site will be https://rebaflix.com.
+
+Step 5 — Update your environment variables
+After the domain is live, update your Railway backend environment variable:
+CLIENT_URL=https://rebaflix.com
+This ensures AfriPay redirects back to rebaflix.com instead of movie-full-eta.vercel.app after payment. Redeploy Railway after changing it.
