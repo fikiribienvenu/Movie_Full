@@ -12,10 +12,11 @@ export const useAuth = () => {
     user: store.user,
     token: store.token,
     watchlist: store.watchlist,
-    login: store.login,       // now (email, password) => Promise<void>
+    login: store.login,
     logout: store.logout,
-    signup: store.signup,     // now (name, email, password) => Promise<void>
+    signup: store.signup,
     subscribe: store.subscribe,
+    refreshSubscription: store.refreshSubscription, // ← NEW
     addToWatchlist: store.addToWatchlist,
     removeFromWatchlist: store.removeFromWatchlist,
     isInWatchlist: store.isInWatchlist,
