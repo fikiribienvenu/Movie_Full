@@ -1,6 +1,7 @@
 // src/app/movies/[id]/page.tsx
 "use client";
 
+import { useState } from "react";
 import { useParams } from "next/navigation";
 import { notFound } from "next/navigation";
 import Image from "next/image";
@@ -10,6 +11,8 @@ import { Play, Star, Clock, Calendar, Lock, Plus, Check, ArrowLeft } from "lucid
 import Navbar from "@/components/layout/Navbar";
 import Footer from "@/components/layout/Footer";
 import MovieGrid from "@/components/movies/MovieGrid";
+import TrailerModal from "@/components/movies/TrailerModal";
+import VideoPlayer from "@/components/movies/VideoPlayer";
 import { getMovieById, movies } from "@/lib/data";
 import { useAuth } from "@/hooks/useAuth";
 
@@ -18,6 +21,9 @@ export default function MovieDetailPage() {
   const id = parseInt(params.id as string, 10);
   const movie = getMovieById(id);
   const { isSubscribed, isLoggedIn, isInWatchlist, addToWatchlist, removeFromWatchlist } = useAuth();
+
+  const [trailerOpen, setTrailerOpen] = useState(false);
+  const [videoOpen, setVideoOpen] = useState(false);
 
   if (!movie) return notFound();
 
@@ -129,8 +135,23 @@ export default function MovieDetailPage() {
 
               {/* Action Buttons */}
               <div className="flex flex-wrap gap-3 mb-10">
+                {/* Trailer — always visible */}
+                {movie.trailerUrl && (
+                  <button
+                    onClick={() => setTrailerOpen(true)}
+                    className="flex items-center gap-2 px-7 py-3.5 bg-white text-black rounded-xl font-bold text-sm hover:bg-gray-100 active:scale-95 transition-all"
+                  >
+                    <Play className="w-4 h-4 fill-black" />
+                    Watch Trailer
+                  </button>
+                )}
+
+                {/* Watch Full Movie (subscriber) or Subscribe CTA */}
                 {isSubscribed ? (
-                  <button className="flex items-center gap-2 px-7 py-3.5 bg-brand-red text-white rounded-xl font-bold text-sm hover:bg-brand-red-dark active:scale-95 transition-all shadow-red">
+                  <button
+                    onClick={() => setVideoOpen(true)}
+                    className="flex items-center gap-2 px-7 py-3.5 bg-brand-red text-white rounded-xl font-bold text-sm hover:bg-brand-red-dark active:scale-95 transition-all shadow-red"
+                  >
                     <Play className="w-4 h-4 fill-white" />
                     Watch Full Movie
                   </button>
@@ -158,31 +179,39 @@ export default function MovieDetailPage() {
                 )}
               </div>
 
-              {/* Video Player / Trailer Area */}
+              {/* Video Player / Trailer Area — inline preview */}
               <div className="rounded-2xl overflow-hidden border border-border bg-bg-tertiary aspect-video relative">
                 {isSubscribed ? (
-                  <div className="absolute inset-0 flex flex-col items-center justify-center gap-4">
-                    <div className="w-18 h-18 w-[72px] h-[72px] rounded-full bg-brand-red/20 border-2 border-brand-red flex items-center justify-center cursor-pointer hover:bg-brand-red group transition-all">
+                  /* Subscriber: show click-to-play full movie */
+                  <button
+                    onClick={() => setVideoOpen(true)}
+                    className="absolute inset-0 w-full h-full flex flex-col items-center justify-center gap-4 group"
+                  >
+                    <div className="w-[72px] h-[72px] rounded-full bg-brand-red/20 border-2 border-brand-red flex items-center justify-center group-hover:bg-brand-red transition-all">
                       <Play className="w-8 h-8 fill-brand-red group-hover:fill-white text-brand-red group-hover:text-white ml-1 transition-colors" />
                     </div>
                     <div className="text-center">
-                      <p className="text-text-secondary text-sm font-medium">Full Movie Available</p>
+                      <p className="text-text-secondary text-sm font-medium">Click to Watch Full Movie</p>
                       <p className="text-text-muted text-xs mt-1">4K · Dolby Audio · CC Available</p>
                     </div>
-                  </div>
+                  </button>
                 ) : (
+                  /* Non-subscriber: show trailer preview + lock */
                   <>
-                    {/* Trailer Preview */}
-                    <div className="absolute inset-0 flex items-center justify-center">
+                    {/* Trailer preview button underneath */}
+                    <button
+                      onClick={() => setTrailerOpen(true)}
+                      className="absolute inset-0 w-full h-full flex items-center justify-center"
+                    >
                       <div className="text-center">
-                        <div className="w-[72px] h-[72px] rounded-full bg-white/10 border-2 border-white/30 flex items-center justify-center cursor-pointer hover:bg-white/20 transition-all mx-auto mb-3">
+                        <div className="w-[72px] h-[72px] rounded-full bg-white/10 border-2 border-white/30 flex items-center justify-center hover:bg-white/20 transition-all mx-auto mb-3">
                           <Play className="w-8 h-8 fill-white text-white ml-1" />
                         </div>
-                        <p className="text-text-secondary text-sm">Trailer Preview</p>
+                        <p className="text-text-secondary text-sm">Watch Trailer</p>
                       </div>
-                    </div>
+                    </button>
 
-                    {/* Lock Overlay */}
+                    {/* Lock overlay */}
                     <div className="absolute inset-0 bg-bg-primary/80 backdrop-blur-md flex flex-col items-center justify-center gap-4 rounded-2xl">
                       <div className="w-14 h-14 rounded-full bg-brand-gold/10 border border-brand-gold/25 flex items-center justify-center">
                         <Lock className="w-6 h-6 text-brand-gold" />
@@ -193,12 +222,21 @@ export default function MovieDetailPage() {
                           Subscribe to unlock this and thousands of movies in 4K Ultra HD.
                         </p>
                       </div>
-                      <Link
-                        href="/pricing"
-                        className="flex items-center gap-2 px-7 py-3 bg-brand-gold text-black rounded-xl font-bold text-sm hover:bg-brand-gold-dark active:scale-95 transition-all shadow-gold"
-                      >
-                        ✦ Subscribe Now — From $8/mo
-                      </Link>
+                      <div className="flex gap-3">
+                        <button
+                          onClick={() => setTrailerOpen(true)}
+                          className="flex items-center gap-2 px-5 py-3 bg-white/10 border border-white/20 text-white rounded-xl font-bold text-sm hover:bg-white/20 transition-all"
+                        >
+                          <Play className="w-4 h-4 fill-white" />
+                          Watch Trailer
+                        </button>
+                        <Link
+                          href="/pricing"
+                          className="flex items-center gap-2 px-7 py-3 bg-brand-gold text-black rounded-xl font-bold text-sm hover:bg-brand-gold-dark active:scale-95 transition-all shadow-gold"
+                        >
+                          ✦ Subscribe Now — From $8/mo
+                        </Link>
+                      </div>
                     </div>
                   </>
                 )}
@@ -215,6 +253,25 @@ export default function MovieDetailPage() {
         </div>
       </main>
       <Footer />
+
+      {/* Modals */}
+      {movie.trailerUrl && (
+        <TrailerModal
+          isOpen={trailerOpen}
+          onClose={() => setTrailerOpen(false)}
+          trailerUrl={movie.trailerUrl}
+          title={movie.title}
+        />
+      )}
+      {movie.videoUrl && isSubscribed && (
+        <VideoPlayer
+          isOpen={videoOpen}
+          onClose={() => setVideoOpen(false)}
+          videoUrl={movie.videoUrl}
+          title={movie.title}
+          poster={movie.poster}
+        />
+      )}
     </>
   );
 }
