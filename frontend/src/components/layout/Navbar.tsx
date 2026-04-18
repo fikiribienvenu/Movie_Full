@@ -61,7 +61,7 @@ export default function Navbar() {
             {/* Logo */}
             <Link href="/" className="flex-shrink-0">
               <span className="font-display text-3xl tracking-widest text-brand-red">
-                REBA<span className="text-brand-gold">FLIX</span>
+                IWACU<span className="text-brand-gold">FLIX</span>
               </span>
             </Link>
 

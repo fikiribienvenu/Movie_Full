@@ -1,7 +1,7 @@
 {
-  "name": "REBAFLIX-fullstack",
+  "name": "IWACUFLIX-fullstack",
   "version": "1.0.0",
-  "description": "REBAFLIX Movie Streaming Platform — Full Stack",
+  "description": "IWACUFLIX Movie Streaming Platform — Full Stack",
   "private": true,
   "scripts": {
     "dev:frontend": "cd frontend && npm run dev",

@@ -32,7 +32,7 @@ export default function Footer() {
           <div className="lg:col-span-1">
             <Link href="/">
               <span className="font-display text-4xl tracking-widest text-brand-red">
-                REBA<span className="text-brand-gold">FLIX</span>
+                IWACU<span className="text-brand-gold">FLIX</span>
               </span>
             </Link>
             <p className="mt-3 text-sm text-text-muted leading-relaxed max-w-xs">
@@ -77,7 +77,7 @@ export default function Footer() {
         {/* Bottom bar */}
         <div className="flex flex-col sm:flex-row items-center justify-between gap-4 pt-8 border-t border-border">
           <p className="text-xs text-text-muted">
-            © {new Date().getFullYear()} REBAFLIX. All rights reserved.
+            © {new Date().getFullYear()} IWACUFLIX. All rights reserved.
           </p>
           <div className="flex items-center gap-2 text-xs text-text-muted">
             <Film className="w-3.5 h-3.5" />

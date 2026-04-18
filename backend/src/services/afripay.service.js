@@ -68,7 +68,7 @@ const buildCheckoutParams = ({ userId, planId, planName, comment }) => {
     fields: {
       amount: amount.toString(),
       currency: AFRIPAY_CONFIG.currency,
-      comment: comment || `REBAFLIX ${planName} Subscription`,
+      comment: comment || `IWACUFLIX ${planName} Subscription`,
       client_token: clientToken,
       return_url: returnUrl,
       app_id: AFRIPAY_CONFIG.appId,

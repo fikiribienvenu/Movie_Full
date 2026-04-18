@@ -1,5 +1,5 @@
 <<<<<<< HEAD
-#  REBAFLIX — Premium Movie Streaming Platform
+#  IWACUFLIX — Premium Movie Streaming Platform
 
 A modern, production-ready movie streaming & selling frontend built with **Next.js 14**, **TypeScript**, **Tailwind CSS**, and **Framer Motion**.
 
@@ -32,7 +32,7 @@ A modern, production-ready movie streaming & selling frontend built with **Next.
 
 ```bash
 # Clone the project
-cd REBAFLIX
+cd IWACUFLIX
 
 # Install dependencies
 npm install
@@ -93,7 +93,7 @@ src/
 └── types/
     └── index.ts                # TypeScript type definitions
 =======
-#  REBAFLIX — Full Stack Movie Streaming Platform
+#  IWACUFLIX — Full Stack Movie Streaming Platform
 
 A complete, production-ready movie streaming platform with a **Next.js 14 frontend** and **Node.js/Express backend**, connected to **MongoDB**.
 
@@ -102,7 +102,7 @@ A complete, production-ready movie streaming platform with a **Next.js 14 fronte
 ##  Project Structure
 
 ```
-REBAFLIX-fullstack/
+IWACUFLIX-fullstack/
 ├── frontend/                    # Next.js 14 App (TypeScript + Tailwind)
 │   ├── src/
 │   │   ├── app/                 # App Router pages (9 pages)
@@ -138,7 +138,7 @@ REBAFLIX-fullstack/
 
 ### 1. Install all dependencies
 ```bash
-cd REBAFLIX-fullstack
+cd IWACUFLIX-fullstack
 npm run install:all
 ```
 
@@ -148,7 +148,7 @@ cp backend/.env.example backend/.env
 ```
 Edit `backend/.env`:
 ```env
-MONGO_URI=mongodb://localhost:27017/REBAFLIX
+MONGO_URI=mongodb://localhost:27017/IWACUFLIX
 JWT_SECRET=your-secret-key-min-32-characters-long
 CLIENT_URL=http://localhost:3000
 PORT=5000
@@ -273,7 +273,7 @@ Replace the `authStore.ts` login/signup actions with real API calls to your back
 
 | Role  | Email                  | Password     |
 |-------|------------------------|--------------|
-| Admin | admin11@REBAFLIX.com      | Admin@1234   |
+| Admin | admin11@IWACUFLIX.com      | Admin@1234   |
 | User  | alex@22example.com       | Alex@1234    |
 
 ---
@@ -384,22 +384,22 @@ MIT — free for personal and commercial use.
 >>>>>>> f6d02f0 (setting signup)
 
 
-To link rebaflix.com to your Vercel deployment, follow these steps:
+To link IWACUFLIX.com to your Vercel deployment, follow these steps:
 
 Step 1 — Add domain in Vercel
 
 Go to vercel.com → open your Movie_Full project
 Click Settings → Domains
 Click Add Domain
-Type rebaflix.com → click Add
-Also add www.rebaflix.com → click Add
+Type IWACUFLIX.com → click Add
+Also add www.IWACUFLIX.com → click Add
 Vercel will show you DNS records to add — keep this page open
 
 
 Step 2 — Update DNS in Hostinger
 
 Go to hpanel.hostinger.com
-Click Domains → click rebaflix.com
+Click Domains → click IWACUFLIX.com
 Click DNS / Nameservers → DNS Records
 You need to add/update these records:
 
@@ -411,12 +411,12 @@ Save changes
 
 Step 3 — Wait for propagation
 DNS changes take 5 minutes to 48 hours to propagate. Usually it's done within 30 minutes.
-You can check progress at dnschecker.org — type rebaflix.com and watch for the green checkmarks.
+You can check progress at dnschecker.org — type IWACUFLIX.com and watch for the green checkmarks.
 
 Step 4 — Verify in Vercel
-Once DNS propagates, go back to Vercel → Settings → Domains. You'll see a green Valid Configuration checkmark next to rebaflix.com. Vercel also automatically issues a free SSL certificate so your site will be https://rebaflix.com.
+Once DNS propagates, go back to Vercel → Settings → Domains. You'll see a green Valid Configuration checkmark next to IWACUFLIX.com. Vercel also automatically issues a free SSL certificate so your site will be https://IWACUFLIX.com.
 
 Step 5 — Update your environment variables
 After the domain is live, update your Railway backend environment variable:
-CLIENT_URL=https://rebaflix.com
-This ensures AfriPay redirects back to rebaflix.com instead of movie-full-eta.vercel.app after payment. Redeploy Railway after changing it.
+CLIENT_URL=https://iwacuflix.com
+This ensures AfriPay redirects back to IWACUFLIX.com instead of movie-full-eta.vercel.app after payment. Redeploy Railway after changing it.

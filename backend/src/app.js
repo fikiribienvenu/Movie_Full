@@ -77,7 +77,7 @@ if (process.env.NODE_ENV === "development") {
 app.get("/api/v1", (req, res) => {
   res.json({
     success: true,
-    message: "🎬 REBAFLIX API v1",
+    message: "🎬 IWACUFLIX API v1",
     version: "1.0.0",
     status: "operational",
     timestamp: new Date().toISOString(),

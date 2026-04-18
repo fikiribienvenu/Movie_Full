@@ -15,8 +15,8 @@ const Review = require("../models/Review.model");
 // ─── Seed Data ────────────────────────────────────────────────────────────────
 
 const adminUser = {
-  name: "Admin REBAFLIX",
-  email: "admin@REBAFLIX.com",
+  name: "Admin IWACUFLIX",
+  email: "admin@IWACUFLIX.com",
   password: "Admin@1234",
   role: "admin",
   isVerified: true,

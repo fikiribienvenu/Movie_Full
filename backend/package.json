@@ -1,7 +1,7 @@
 {
-  "name": "REBAFLIX-backend",
+  "name": "IWACUFLIX-backend",
   "version": "1.0.0",
-  "description": "REBAFLIX Movie Streaming Platform — Node.js REST API",
+  "description": "IWACUFLIX Movie Streaming Platform — Node.js REST API",
   "main": "src/server.js",
   "type": "commonjs",
   "scripts": {

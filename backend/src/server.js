@@ -13,7 +13,7 @@ const PORT = process.env.PORT || 5000;
 // Connect to MongoDB then start server
 connectDB().then(() => {
   const server = app.listen(PORT, () => {
-    logger.info(`🎬 REBAFLIX API running on port ${PORT} [${process.env.NODE_ENV}]`);
+    logger.info(`🎬 IWACUFLIX API running on port ${PORT} [${process.env.NODE_ENV}]`);
     logger.info(`📖 API Docs available at http://localhost:${PORT}/api/v1`);
   });
 
