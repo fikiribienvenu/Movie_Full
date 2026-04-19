@@ -7,27 +7,29 @@ import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { Star, Play, Lock, Plus, Check } from "lucide-react";
-import { Movie } from "@/types";
 import { useAuth } from "@/hooks/useAuth";
 import { cn } from "@/lib/utils";
 import TrailerModal from "./TrailerModal";
 
 interface MovieCardProps {
-  movie: Movie;
+  movie: any;
   index?: number;
 }
 
 export default function MovieCard({ movie, index = 0 }: MovieCardProps) {
   const router = useRouter();
   const { isSubscribed, isInWatchlist, addToWatchlist, removeFromWatchlist, isLoggedIn } = useAuth();
-  const inWatchlist = isInWatchlist(movie.id);
+
+  const movieId = movie._id || movie.id;
+  const posterUrl = movie.poster?.url || movie.poster || "";
+  const inWatchlist = isInWatchlist(movieId);
   const [trailerOpen, setTrailerOpen] = useState(false);
 
   const handleWatchlistToggle = (e: React.MouseEvent) => {
     e.preventDefault();
     if (!isLoggedIn) return;
-    if (inWatchlist) removeFromWatchlist(movie.id);
-    else addToWatchlist(movie.id);
+    if (inWatchlist) removeFromWatchlist(movieId);
+    else addToWatchlist(movieId);
   };
 
   const handleSubscribeClick = (e: React.MouseEvent) => {
@@ -50,20 +52,25 @@ export default function MovieCard({ movie, index = 0 }: MovieCardProps) {
         transition={{ duration: 0.3, delay: index * 0.05 }}
         className="group relative"
       >
-        <Link href={`/movies/${movie.id}`}>
+        <Link href={`/movies/${movieId}`}>
           <div className="bg-bg-card border border-border rounded-2xl overflow-hidden transition-all duration-300 group-hover:border-brand-gold/30 group-hover:shadow-card-hover group-hover:-translate-y-1.5">
-            {/* Poster */}
             <div className="relative aspect-[2/3] overflow-hidden">
-              <Image
-                src={movie.poster}
-                alt={movie.title}
-                fill
-                className="object-cover transition-transform duration-500 group-hover:scale-105"
-                sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 20vw"
-              />
+              {posterUrl ? (
+                <Image
+                  src={posterUrl}
+                  alt={movie.title}
+                  fill
+                  className="object-cover transition-transform duration-500 group-hover:scale-105"
+                  sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 20vw"
+                />
+              ) : (
+                <div className="w-full h-full bg-bg-elevated flex items-center justify-center">
+                  <Play className="w-8 h-8 text-text-muted" />
+                </div>
+              )}
 
               {/* Badge */}
-              {movie.badge === "new" && (
+              {(movie.badge === "new" || movie.isNew) && (
                 <div className="absolute top-2 left-2 bg-brand-red text-white text-[10px] font-black px-2 py-0.5 rounded-full tracking-wide z-10">
                   NEW
                 </div>
@@ -86,7 +93,6 @@ export default function MovieCard({ movie, index = 0 }: MovieCardProps) {
 
               {/* Hover overlay */}
               <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex flex-col justify-end p-3 gap-2">
-                {/* Watch Trailer — always available */}
                 <button
                   onClick={handleTrailerClick}
                   className="flex items-center justify-center gap-1.5 w-full py-2 rounded-lg bg-white text-black text-xs font-bold hover:bg-gray-100 transition-colors"
@@ -95,10 +101,9 @@ export default function MovieCard({ movie, index = 0 }: MovieCardProps) {
                   Watch Trailer
                 </button>
 
-                {/* Watch Now (subscriber) or Subscribe CTA */}
                 {isSubscribed ? (
                   <Link
-                    href={`/movies/${movie.id}`}
+                    href={`/movies/${movieId}`}
                     onClick={(e) => e.stopPropagation()}
                     className="flex items-center justify-center gap-1.5 w-full py-2 rounded-lg bg-brand-red text-white text-xs font-bold hover:bg-brand-red-dark transition-colors"
                   >
@@ -117,11 +122,8 @@ export default function MovieCard({ movie, index = 0 }: MovieCardProps) {
               </div>
             </div>
 
-            {/* Info */}
             <div className="p-3">
-              <h3 className="font-semibold text-sm text-text-primary truncate mb-1.5">
-                {movie.title}
-              </h3>
+              <h3 className="font-semibold text-sm text-text-primary truncate mb-1.5">{movie.title}</h3>
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-1 text-brand-gold">
                   <Star className="w-3 h-3 fill-brand-gold" />
@@ -136,7 +138,6 @@ export default function MovieCard({ movie, index = 0 }: MovieCardProps) {
         </Link>
       </motion.div>
 
-      {/* Trailer Modal — rendered outside the Link */}
       {movie.trailerUrl && (
         <TrailerModal
           isOpen={trailerOpen}
