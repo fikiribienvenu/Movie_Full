@@ -348,7 +348,7 @@ export default function MovieDetailPage() {
           {/* Related movies */}
           {relatedMapped.length > 0 && (
             <div className="mt-16">
-              <MovieGrid title={`More ${movie.category} Movies`} movies={relatedMapped} />
+              <MovieGrid title={`More ${movie.category} Movies`} movies={relatedMapped as any} />
             </div>
           )}
         </div>
