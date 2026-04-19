@@ -16,9 +16,6 @@ import { useAuth } from "@/hooks/useAuth";
 
 const API = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000/api/v1";
 
-// ── Helpers ────────────────────────────────────────────────────────────────────
-
-/** MongoDB cast: [{name, character}] or ["string"] → "Name1, Name2, Name3" */
 const formatCast = (cast: any[]): string => {
   if (!Array.isArray(cast) || cast.length === 0) return "";
   return cast
@@ -28,7 +25,6 @@ const formatCast = (cast: any[]): string => {
     .join(", ");
 };
 
-/** MongoDB duration: 175 (minutes) or "2h 55m" → always "2h 55m" */
 const formatDuration = (duration: any): string => {
   if (!duration) return "";
   if (typeof duration === "string" && duration.includes("h")) return duration;
@@ -39,14 +35,12 @@ const formatDuration = (duration: any): string => {
   return h > 0 ? `${h}h ${m}m` : `${m}m`;
 };
 
-/** MongoDB genres: ["Drama","Crime"] or "Drama · Crime" → "Drama · Crime" */
 const formatGenres = (genre: any): string => {
   if (!genre) return "";
   if (Array.isArray(genre)) return genre.join(" · ");
   return String(genre);
 };
 
-/** Get poster URL from {url:...} object or plain string */
 const getUrl = (field: any): string => {
   if (!field) return "";
   if (typeof field === "string") return field;
@@ -54,26 +48,23 @@ const getUrl = (field: any): string => {
   return "";
 };
 
-/** Get trailer embed URL — MongoDB: {url, youtubeId} or plain string */
 const getTrailerUrl = (trailer: any): string => {
   if (!trailer) return "";
   if (typeof trailer === "string") return trailer;
   if (typeof trailer === "object") {
-    // Already an embed URL
     if (trailer.url?.includes("embed")) return trailer.url;
-    // Has youtubeId
     if (trailer.youtubeId) return `https://www.youtube.com/embed/${trailer.youtubeId}`;
-    // Has plain youtube watch URL
     if (trailer.url?.includes("youtube.com/watch")) {
-      const id = new URL(trailer.url).searchParams.get("v");
-      return id ? `https://www.youtube.com/embed/${id}` : "";
+      try {
+        const id = new URL(trailer.url).searchParams.get("v");
+        return id ? `https://www.youtube.com/embed/${id}` : "";
+      } catch { return ""; }
     }
     return trailer.url || "";
   }
   return "";
 };
 
-/** Get video URL — MongoDB: {url, duration, quality} or plain string */
 const getVideoUrl = (video: any): string => {
   if (!video) return "";
   if (typeof video === "string") return video;
@@ -81,16 +72,14 @@ const getVideoUrl = (video: any): string => {
   return "";
 };
 
-// ── Component ──────────────────────────────────────────────────────────────────
-
 export default function MovieDetailPage() {
   const params = useParams();
   const id = params.id as string;
   const { isSubscribed, isLoggedIn, isInWatchlist, addToWatchlist, removeFromWatchlist } = useAuth();
 
-  const [movie, setMovie]       = useState<any>(null);
-  const [related, setRelated]   = useState<any[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
+  const [movie, setMovie]             = useState<any>(null);
+  const [related, setRelated]         = useState<any[]>([]);
+  const [isLoading, setIsLoading]     = useState(true);
   const [trailerOpen, setTrailerOpen] = useState(false);
   const [videoOpen, setVideoOpen]     = useState(false);
 
@@ -103,10 +92,9 @@ export default function MovieDetailPage() {
         const m = data.data?.movie || data.data || data;
         setMovie(m);
 
-        // Related movies
         const category = m.category || m.genres?.[0] || "";
         if (category) {
-          const relRes = await fetch(`${API}/movies?category=${category}&limit=7`);
+          const relRes  = await fetch(`${API}/movies?category=${category}&limit=7`);
           const relData = await relRes.json();
           if (relRes.ok) {
             const all = relData.data?.movies || relData.data || [];
@@ -136,15 +124,17 @@ export default function MovieDetailPage() {
 
   if (!movie) return notFound();
 
-  // ── Normalise MongoDB fields ───────────────────────────────────
   const posterUrl   = getUrl(movie.poster);
   const backdropUrl = getUrl(movie.backdrop) || getUrl(movie.backdropUrl) || posterUrl;
   const trailerUrl  = getTrailerUrl(movie.trailer) || getTrailerUrl(movie.trailerUrl) || "";
-  const videoUrl    = getVideoUrl(movie.video)    || getVideoUrl(movie.videoUrl)    || "";
+  const videoUrl    = getVideoUrl(movie.video) || getVideoUrl(movie.videoUrl) || "";
   const castText    = formatCast(movie.cast);
   const duration    = formatDuration(movie.duration);
   const genres      = formatGenres(movie.genres || movie.genre);
   const inWatchlist = isInWatchlist(movie._id);
+
+  // A movie is watchable if user is subscribed OR movie doesn't require subscription
+  const canWatch = isSubscribed || !movie.isSubscriptionRequired;
 
   const handleWatchlist = () => {
     if (!isLoggedIn) return;
@@ -152,7 +142,6 @@ export default function MovieDetailPage() {
     else addToWatchlist(movie._id);
   };
 
-  // Map MongoDB movie to the shape MovieGrid / MovieCard expects
   const toCardShape = (m: any) => ({
     id: m._id,
     title: m.title,
@@ -166,7 +155,9 @@ export default function MovieDetailPage() {
     duration: formatDuration(m.duration),
     genre: formatGenres(m.genres || m.genre),
     director: m.director,
-    cast: Array.isArray(m.cast) ? m.cast.map((c: any) => typeof c === "string" ? c : c?.name || "") : [],
+    cast: Array.isArray(m.cast)
+      ? m.cast.map((c: any) => (typeof c === "string" ? c : c?.name || ""))
+      : [],
     trending: m.isTrending || false,
     badge: m.badge || null,
   });
@@ -186,7 +177,7 @@ export default function MovieDetailPage() {
               alt={movie.title}
               fill
               priority
-              unoptimized          // ← avoids next.config domain whitelist issues
+              unoptimized
               className="object-cover object-top brightness-[0.28]"
               sizes="100vw"
             />
@@ -195,7 +186,6 @@ export default function MovieDetailPage() {
           )}
           <div className="absolute inset-0 bg-gradient-to-t from-bg-primary via-bg-primary/50 to-bg-primary/10" />
           <div className="absolute inset-0 bg-gradient-to-r from-bg-primary/60 to-transparent" />
-
           <div className="absolute top-20 left-0 right-0 max-w-screen-2xl mx-auto px-4 sm:px-6 lg:px-8">
             <Link href="/" className="inline-flex items-center gap-2 text-text-secondary hover:text-text-primary text-sm font-medium transition-colors">
               <ArrowLeft className="w-4 h-4" /> Back
@@ -207,14 +197,19 @@ export default function MovieDetailPage() {
           <div className="grid grid-cols-1 lg:grid-cols-[280px_1fr] gap-8 lg:gap-12">
 
             {/* Poster */}
-            <motion.div initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5 }} className="hidden lg:block">
+            <motion.div
+              initial={{ opacity: 0, y: 30 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.5 }}
+              className="hidden lg:block"
+            >
               <div className="relative aspect-[2/3] rounded-2xl overflow-hidden border border-border shadow-card bg-bg-elevated">
                 {posterUrl && (
                   <Image
                     src={posterUrl}
                     alt={movie.title}
                     fill
-                    unoptimized     // ← avoids domain whitelist issues
+                    unoptimized
                     className="object-cover"
                     sizes="280px"
                   />
@@ -223,13 +218,16 @@ export default function MovieDetailPage() {
             </motion.div>
 
             {/* Info */}
-            <motion.div initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5, delay: 0.1 }}>
-
+            <motion.div
+              initial={{ opacity: 0, y: 30 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.5, delay: 0.1 }}
+            >
               <h1 className="font-display text-[clamp(36px,5vw,68px)] leading-none tracking-wider uppercase text-text-primary mb-4">
                 {movie.title}
               </h1>
 
-              {/* Meta tags */}
+              {/* Meta */}
               <div className="flex flex-wrap gap-2 mb-5">
                 <span className="flex items-center gap-1.5 px-3 py-1.5 bg-brand-gold/10 border border-brand-gold/25 text-brand-gold text-xs font-semibold rounded-full">
                   <Star className="w-3 h-3 fill-brand-gold" /> {movie.rating || "N/A"}
@@ -243,11 +241,15 @@ export default function MovieDetailPage() {
                   </span>
                 )}
                 {genres && genres.split(" · ").map((g: string) => (
-                  <span key={g} className="px-3 py-1.5 bg-brand-red/10 border border-brand-red/20 text-brand-red text-xs font-medium rounded-full">{g}</span>
+                  <span key={g} className="px-3 py-1.5 bg-brand-red/10 border border-brand-red/20 text-brand-red text-xs font-medium rounded-full">
+                    {g}
+                  </span>
                 ))}
               </div>
 
-              <p className="text-text-secondary text-base leading-relaxed mb-6 max-w-2xl">{movie.description}</p>
+              <p className="text-text-secondary text-base leading-relaxed mb-6 max-w-2xl">
+                {movie.description}
+              </p>
 
               {/* Director & Cast */}
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-8">
@@ -265,7 +267,7 @@ export default function MovieDetailPage() {
                 )}
               </div>
 
-              {/* Action buttons */}
+              {/* Action Buttons */}
               <div className="flex flex-wrap gap-3 mb-10">
                 {trailerUrl && (
                   <button
@@ -275,7 +277,8 @@ export default function MovieDetailPage() {
                     <Play className="w-4 h-4 fill-black" /> Watch Trailer
                   </button>
                 )}
-                {isSubscribed ? (
+
+                {canWatch ? (
                   <button
                     onClick={() => setVideoOpen(true)}
                     className="flex items-center gap-2 px-7 py-3.5 bg-brand-red text-white rounded-xl font-bold text-sm hover:bg-brand-red-dark active:scale-95 transition-all"
@@ -283,10 +286,14 @@ export default function MovieDetailPage() {
                     <Play className="w-4 h-4 fill-white" /> Watch Full Movie
                   </button>
                 ) : (
-                  <Link href="/pricing" className="flex items-center gap-2 px-7 py-3.5 bg-brand-gold text-black rounded-xl font-bold text-sm hover:bg-brand-gold-dark active:scale-95 transition-all">
+                  <Link
+                    href="/pricing"
+                    className="flex items-center gap-2 px-7 py-3.5 bg-brand-gold text-black rounded-xl font-bold text-sm hover:bg-brand-gold-dark active:scale-95 transition-all"
+                  >
                     ✦ Subscribe to Watch
                   </Link>
                 )}
+
                 {isLoggedIn && (
                   <button
                     onClick={handleWatchlist}
@@ -304,7 +311,7 @@ export default function MovieDetailPage() {
 
               {/* Video area */}
               <div className="rounded-2xl overflow-hidden border border-border bg-bg-tertiary aspect-video relative">
-                {isSubscribed ? (
+                {canWatch ? (
                   <button
                     onClick={() => setVideoOpen(true)}
                     className="absolute inset-0 w-full h-full flex flex-col items-center justify-center gap-4 group"
@@ -324,7 +331,9 @@ export default function MovieDetailPage() {
                     </div>
                     <div className="text-center">
                       <h3 className="font-display text-2xl tracking-wider mb-1">Full Movie Locked</h3>
-                      <p className="text-text-muted text-sm max-w-xs">Subscribe to unlock this and thousands of movies.</p>
+                      <p className="text-text-muted text-sm max-w-xs">
+                        Subscribe to unlock this and thousands of movies.
+                      </p>
                     </div>
                     <div className="flex gap-3 flex-wrap justify-center">
                       {trailerUrl && (
@@ -335,7 +344,10 @@ export default function MovieDetailPage() {
                           <Play className="w-4 h-4 fill-white" /> Watch Trailer
                         </button>
                       )}
-                      <Link href="/pricing" className="flex items-center gap-2 px-7 py-3 bg-brand-gold text-black rounded-xl font-bold text-sm hover:bg-brand-gold-dark transition-all">
+                      <Link
+                        href="/pricing"
+                        className="flex items-center gap-2 px-7 py-3 bg-brand-gold text-black rounded-xl font-bold text-sm hover:bg-brand-gold-dark transition-all"
+                      >
                         ✦ Subscribe Now
                       </Link>
                     </div>
@@ -345,16 +357,20 @@ export default function MovieDetailPage() {
             </motion.div>
           </div>
 
-          {/* Related movies */}
+          {/* Related */}
           {relatedMapped.length > 0 && (
             <div className="mt-16">
-              <MovieGrid title={`More ${movie.category} Movies`} movies={relatedMapped as any} />
+              <MovieGrid
+                title={`More ${movie.category} Movies`}
+                movies={relatedMapped as any}
+              />
             </div>
           )}
         </div>
       </main>
       <Footer />
 
+      {/* Trailer Modal */}
       {trailerUrl && (
         <TrailerModal
           isOpen={trailerOpen}
@@ -363,7 +379,9 @@ export default function MovieDetailPage() {
           title={movie.title}
         />
       )}
-      {videoUrl && isSubscribed && (
+
+      {/* Video Player — shows if user can watch AND video URL exists */}
+      {videoUrl && canWatch && (
         <VideoPlayer
           isOpen={videoOpen}
           onClose={() => setVideoOpen(false)}
