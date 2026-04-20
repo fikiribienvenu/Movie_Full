@@ -1,4 +1,5 @@
 // src/app/movies/[id]/page.tsx
+//v2
 "use client";
 
 import { useState, useEffect } from "react";
