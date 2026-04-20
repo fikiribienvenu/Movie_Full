@@ -31,7 +31,21 @@ const getYouTubeEmbedUrl = (url: string): string | null => {
   return null;
 };
 
-const isHLS = (url: string) => url?.includes(".m3u8");
+// Load HLS.js from CDN
+const loadHlsScript = (): Promise<any> => {
+  return new Promise((resolve, reject) => {
+    // Check if already loaded
+    if ((window as any).Hls) {
+      resolve((window as any).Hls);
+      return;
+    }
+    const script = document.createElement("script");
+    script.src = "https://cdn.jsdelivr.net/npm/hls.js@1.6.16/dist/hls.min.js";
+    script.onload = () => resolve((window as any).Hls);
+    script.onerror = reject;
+    document.head.appendChild(script);
+  });
+};
 
 export default function VideoPlayer({ isOpen, onClose, videoUrl, title, poster }: VideoPlayerProps) {
   const videoRef = useRef<HTMLVideoElement>(null);
@@ -47,15 +61,13 @@ export default function VideoPlayer({ isOpen, onClose, videoUrl, title, poster }
 
   const youtubeEmbedUrl = getYouTubeEmbedUrl(videoUrl);
   const isYouTube = !!youtubeEmbedUrl;
-  const isHLSUrl  = isHLS(videoUrl);
+  const isHLSUrl  = videoUrl?.includes(".m3u8");
 
-  // Lock body scroll
   useEffect(() => {
     document.body.style.overflow = isOpen ? "hidden" : "";
     return () => { document.body.style.overflow = ""; };
   }, [isOpen]);
 
-  // Escape key
   useEffect(() => {
     if (!isOpen) return;
     const onKey = (e: KeyboardEvent) => {
@@ -66,7 +78,7 @@ export default function VideoPlayer({ isOpen, onClose, videoUrl, title, poster }
     return () => window.removeEventListener("keydown", onKey);
   }, [isOpen, isYouTube]);
 
-  // Setup HLS or native video
+  // Setup video when opened
   useEffect(() => {
     const v = videoRef.current;
     if (!v || isYouTube) return;
@@ -74,16 +86,15 @@ export default function VideoPlayer({ isOpen, onClose, videoUrl, title, poster }
     if (isOpen && videoUrl) {
       setReady(false);
       setProgress(0);
+      setPlaying(false);
 
       if (isHLSUrl) {
-        // Dynamically load hls.js for m3u8 streams
-        import("hls.js").then(({ default: Hls }) => {
+        // Load HLS.js from CDN then setup stream
+        loadHlsScript().then((Hls) => {
+          if (!Hls) return;
           if (Hls.isSupported()) {
-            // Destroy existing HLS instance
-            if (hlsRef.current) {
-              hlsRef.current.destroy();
-            }
-            const hls = new Hls({ autoStartLoad: true });
+            if (hlsRef.current) hlsRef.current.destroy();
+            const hls = new Hls();
             hls.loadSource(videoUrl);
             hls.attachMedia(v);
             hls.on(Hls.Events.MANIFEST_PARSED, () => {
@@ -92,44 +103,34 @@ export default function VideoPlayer({ isOpen, onClose, videoUrl, title, poster }
               setMuted(true);
               v.play().catch(() => {});
             });
-            hls.on(Hls.Events.ERROR, (_, data) => {
-              console.error("HLS error:", data);
-            });
             hlsRef.current = hls;
           } else if (v.canPlayType("application/vnd.apple.mpegurl")) {
-            // Safari native HLS support
+            // Safari
             v.src = videoUrl;
             v.load();
           }
-        }).catch(err => {
-          console.error("Failed to load hls.js:", err);
-          // Fallback to native
+        }).catch(() => {
+          // CDN failed, try direct
           v.src = videoUrl;
           v.load();
         });
       } else {
         // Regular MP4
-        if (hlsRef.current) {
-          hlsRef.current.destroy();
-          hlsRef.current = null;
-        }
+        if (hlsRef.current) { hlsRef.current.destroy(); hlsRef.current = null; }
         v.src = videoUrl;
         v.load();
       }
     }
 
     if (!isOpen) {
-      if (hlsRef.current) {
-        hlsRef.current.destroy();
-        hlsRef.current = null;
-      }
+      if (hlsRef.current) { hlsRef.current.destroy(); hlsRef.current = null; }
       v.pause();
       v.src = "";
       setPlaying(false);
       setProgress(0);
       setReady(false);
     }
-  }, [isOpen, videoUrl, isYouTube, isHLSUrl]);
+  }, [isOpen, videoUrl]);
 
   const togglePlay = () => {
     const v = videoRef.current;
@@ -150,9 +151,6 @@ export default function VideoPlayer({ isOpen, onClose, videoUrl, title, poster }
     if (!v) return;
     setDuration(v.duration);
     setReady(true);
-    v.muted = true;
-    setMuted(true);
-    v.play().catch(() => {});
   };
 
   const onTimeUpdate = () => {
@@ -228,7 +226,7 @@ export default function VideoPlayer({ isOpen, onClose, videoUrl, title, poster }
             </button>
           </div>
 
-          {/* YouTube iframe */}
+          {/* YouTube */}
           {isYouTube ? (
             <iframe
               src={youtubeEmbedUrl!}
@@ -239,7 +237,6 @@ export default function VideoPlayer({ isOpen, onClose, videoUrl, title, poster }
             />
           ) : (
             <>
-              {/* Native / HLS video */}
               <video
                 ref={videoRef}
                 poster={poster}
@@ -251,7 +248,7 @@ export default function VideoPlayer({ isOpen, onClose, videoUrl, title, poster }
                 onPlay={() => setPlaying(true)}
                 onPause={() => setPlaying(false)}
                 onEnded={() => { setPlaying(false); setShowControls(true); }}
-                onCanPlay={() => setReady(true)}
+                onCanPlay={() => !ready && setReady(true)}
               />
 
               {/* Click overlay */}
@@ -315,7 +312,6 @@ export default function VideoPlayer({ isOpen, onClose, videoUrl, title, poster }
                       />
                       <span className="text-white/60 text-xs tabular-nums w-10 text-right">{formatTime(duration)}</span>
                     </div>
-
                     <div className="flex items-center gap-4">
                       <button onClick={togglePlay} className="text-white hover:text-yellow-400 transition-colors">
                         {playing ? <Pause className="w-5 h-5 fill-white" /> : <Play className="w-5 h-5 fill-white" />}
