@@ -1,5 +1,5 @@
 // src/app/movies/[id]/page.tsx
-//v2
+// v3
 "use client";
 
 import { useState, useEffect } from "react";
@@ -91,6 +91,11 @@ export default function MovieDetailPage() {
         if (!res.ok) { setIsLoading(false); return; }
         const data = await res.json();
         const m = data.data?.movie || data.data || data;
+
+        // Debug log
+        console.log('[MOVIE DEBUG] raw video field:', JSON.stringify(m?.video));
+        console.log('[MOVIE DEBUG] computed videoUrl:', getVideoUrl(m?.video));
+
         setMovie(m);
 
         const category = m.category || m.genres?.[0] || "";
@@ -134,8 +139,14 @@ export default function MovieDetailPage() {
   const genres      = formatGenres(movie.genres || movie.genre);
   const inWatchlist = isInWatchlist(movie._id);
 
-  // A movie is watchable if user is subscribed OR movie doesn't require subscription
+  // canWatch: subscribed users OR free movies
   const canWatch = isSubscribed || !movie.isSubscriptionRequired;
+
+  // Debug log
+  console.log('[PAGE DEBUG] videoUrl:', videoUrl);
+  console.log('[PAGE DEBUG] canWatch:', canWatch);
+  console.log('[PAGE DEBUG] isSubscribed:', isSubscribed);
+  console.log('[PAGE DEBUG] isSubscriptionRequired:', movie.isSubscriptionRequired);
 
   const handleWatchlist = () => {
     if (!isLoggedIn) return;
@@ -381,8 +392,8 @@ export default function MovieDetailPage() {
         />
       )}
 
-      {/* Video Player — shows if user can watch AND video URL exists */}
-      {videoUrl && canWatch && (
+      {/* VideoPlayer — always mount when canWatch, even if videoUrl is empty */}
+      {canWatch && (
         <VideoPlayer
           isOpen={videoOpen}
           onClose={() => setVideoOpen(false)}
