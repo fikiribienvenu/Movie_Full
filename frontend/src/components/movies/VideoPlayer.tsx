@@ -13,21 +13,17 @@ interface VideoPlayerProps {
   poster?: string;
 }
 
-// ── Detect if URL is a YouTube link and extract embed URL ─────────────────────
 const getYouTubeEmbedUrl = (url: string): string | null => {
   if (!url) return null;
   try {
-    // youtube.com/watch?v=ID
     if (url.includes("youtube.com/watch")) {
       const id = new URL(url).searchParams.get("v");
       return id ? `https://www.youtube.com/embed/${id}?autoplay=1&rel=0` : null;
     }
-    // youtu.be/ID
     if (url.includes("youtu.be/")) {
       const id = url.split("youtu.be/")[1]?.split("?")[0];
       return id ? `https://www.youtube.com/embed/${id}?autoplay=1&rel=0` : null;
     }
-    // already an embed URL
     if (url.includes("youtube.com/embed/")) {
       return url.includes("autoplay") ? url : url + "?autoplay=1&rel=0";
     }
@@ -35,20 +31,23 @@ const getYouTubeEmbedUrl = (url: string): string | null => {
   return null;
 };
 
+const isHLS = (url: string) => url?.includes(".m3u8");
+
 export default function VideoPlayer({ isOpen, onClose, videoUrl, title, poster }: VideoPlayerProps) {
   const videoRef = useRef<HTMLVideoElement>(null);
-  const [playing, setPlaying] = useState(false);
-  const [muted, setMuted]     = useState(true);
-  const [volume, setVolume]   = useState(0.8);
-  const [progress, setProgress] = useState(0);
-  const [duration, setDuration] = useState(0);
-  const [ready, setReady]       = useState(false);
+  const hlsRef   = useRef<any>(null);
+  const [playing, setPlaying]       = useState(false);
+  const [muted, setMuted]           = useState(true);
+  const [volume, setVolume]         = useState(0.8);
+  const [progress, setProgress]     = useState(0);
+  const [duration, setDuration]     = useState(0);
+  const [ready, setReady]           = useState(false);
   const [showControls, setShowControls] = useState(true);
   const controlsTimer = useRef<ReturnType<typeof setTimeout>>();
 
-  // Determine if this is a YouTube video
   const youtubeEmbedUrl = getYouTubeEmbedUrl(videoUrl);
   const isYouTube = !!youtubeEmbedUrl;
+  const isHLSUrl  = isHLS(videoUrl);
 
   // Lock body scroll
   useEffect(() => {
@@ -67,21 +66,70 @@ export default function VideoPlayer({ isOpen, onClose, videoUrl, title, poster }
     return () => window.removeEventListener("keydown", onKey);
   }, [isOpen, isYouTube]);
 
-  // Reset on open/close for native video
+  // Setup HLS or native video
   useEffect(() => {
     const v = videoRef.current;
     if (!v || isYouTube) return;
-    if (isOpen) {
+
+    if (isOpen && videoUrl) {
       setReady(false);
       setProgress(0);
-      v.load();
-    } else {
+
+      if (isHLSUrl) {
+        // Dynamically load hls.js for m3u8 streams
+        import("hls.js").then(({ default: Hls }) => {
+          if (Hls.isSupported()) {
+            // Destroy existing HLS instance
+            if (hlsRef.current) {
+              hlsRef.current.destroy();
+            }
+            const hls = new Hls({ autoStartLoad: true });
+            hls.loadSource(videoUrl);
+            hls.attachMedia(v);
+            hls.on(Hls.Events.MANIFEST_PARSED, () => {
+              setReady(true);
+              v.muted = true;
+              setMuted(true);
+              v.play().catch(() => {});
+            });
+            hls.on(Hls.Events.ERROR, (_, data) => {
+              console.error("HLS error:", data);
+            });
+            hlsRef.current = hls;
+          } else if (v.canPlayType("application/vnd.apple.mpegurl")) {
+            // Safari native HLS support
+            v.src = videoUrl;
+            v.load();
+          }
+        }).catch(err => {
+          console.error("Failed to load hls.js:", err);
+          // Fallback to native
+          v.src = videoUrl;
+          v.load();
+        });
+      } else {
+        // Regular MP4
+        if (hlsRef.current) {
+          hlsRef.current.destroy();
+          hlsRef.current = null;
+        }
+        v.src = videoUrl;
+        v.load();
+      }
+    }
+
+    if (!isOpen) {
+      if (hlsRef.current) {
+        hlsRef.current.destroy();
+        hlsRef.current = null;
+      }
       v.pause();
+      v.src = "";
       setPlaying(false);
       setProgress(0);
       setReady(false);
     }
-  }, [isOpen, isYouTube]);
+  }, [isOpen, videoUrl, isYouTube, isHLSUrl]);
 
   const togglePlay = () => {
     const v = videoRef.current;
@@ -180,7 +228,7 @@ export default function VideoPlayer({ isOpen, onClose, videoUrl, title, poster }
             </button>
           </div>
 
-          {/* ── YouTube iframe ── */}
+          {/* YouTube iframe */}
           {isYouTube ? (
             <iframe
               src={youtubeEmbedUrl!}
@@ -190,11 +238,10 @@ export default function VideoPlayer({ isOpen, onClose, videoUrl, title, poster }
               className="absolute inset-0 w-full h-full"
             />
           ) : (
-            /* ── Native video player ── */
             <>
+              {/* Native / HLS video */}
               <video
                 ref={videoRef}
-                src={videoUrl}
                 poster={poster}
                 muted
                 playsInline
@@ -204,6 +251,7 @@ export default function VideoPlayer({ isOpen, onClose, videoUrl, title, poster }
                 onPlay={() => setPlaying(true)}
                 onPause={() => setPlaying(false)}
                 onEnded={() => { setPlaying(false); setShowControls(true); }}
+                onCanPlay={() => setReady(true)}
               />
 
               {/* Click overlay */}
@@ -253,7 +301,6 @@ export default function VideoPlayer({ isOpen, onClose, videoUrl, title, poster }
                     className="absolute bottom-0 left-0 right-0 z-20 bg-gradient-to-t from-black/90 to-transparent px-5 pb-6 pt-12"
                     onClick={(e) => e.stopPropagation()}
                   >
-                    {/* Progress bar */}
                     <div className="flex items-center gap-3 mb-3">
                       <span className="text-white/60 text-xs tabular-nums w-10">{formatTime(currentTime)}</span>
                       <input
